@@ -1,0 +1,47 @@
+# ============================================================
+# KernelMPS v1.0 — .gitignore
+# ============================================================
+
+# --- Large binaries ---
+# kernelmps.exe (~148 MB) exceeds GitHub's 100 MB per-file limit.
+# To keep it in the repo use Git LFS (see README), or upload it as a
+# GitHub Release asset instead.
+kernelmps.exe
+
+# --- Test / input data (raw images are NOT committed) ---
+test_image_data/
+
+# --- Incidental notebook QC artifacts ---
+pipeline/notebooks/ocr_ssocr_qc/
+
+# --- Local machine overrides (created by the user) ---
+pipeline/env.local.yaml
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+*.egg-info/
+.eggs/
+build/
+dist/
+.venv/
+venv/
+.ipynb_checkpoints/
+.mypy_cache/
+.pytest_cache/
+
+# --- R ---
+.Rhistory
+.RData
+.Ruserdata
+.Rproj.user/
+*.Rproj
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.idea/
+.vscode/

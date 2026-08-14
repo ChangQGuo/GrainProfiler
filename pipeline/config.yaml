@@ -1,0 +1,251 @@
+# ==============================================================================
+# Maize Kernel Phenotyping Pipeline - Configuration File
+# ==============================================================================
+# Edit this file before running the pipeline.
+# All output folders are created automatically when the pipeline runs.
+# ==============================================================================
+
+
+# --- Python executables for each conda environment ---
+# Each stage uses a different environment because the model dependencies
+# (YOLO, SAM2, PaddleOCR) conflict with each other and cannot share one env.
+# Please replace these paths with the actual python paths on your server.
+environments:
+  yolo_python:    /home/revo/miniconda3/envs/yoloenv/bin/python3.10   # YOLO detection
+  sam2_python:    /home/revo/miniconda3/envs/SAM2/bin/python3.10      # SAM2 segmentation
+  paddle_python:  /home/revo/miniconda3/envs/paddle/bin/python        # PaddleOCR
+  # The processing and measurement stages need numpy, shapely, pandas, cv2, matplotlib.
+  base_python:    /home/revo/miniconda3/envs/SAM2/bin/python3.10
+
+
+# --- Shared runtime device ---
+# below can be set to "cuda:0" or "cpu" to override it; null means use this.
+runtime:
+  gpu_device: "cuda:1"
+
+
+# --- Input images ---
+# The folder containing the original full tray images (one per plant/variety).
+input:
+  image_dir:       /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/test_image/
+  image_extension: ".jpg"
+
+
+# --- Trained model paths ---
+# These model_weights are already trained - do not retrain.
+models:
+  yolo_detection:  /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/notebook/runs/detect/train/weights/best.pt
+  # /home/revo/project/notes/WORKINGNOTEBOOKS/runs/detect/train2/weights/best.pt
+  label_weight_yolo: /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/label_weight_yolo/runs/detect/train/weights/best.pt
+  weight_digit_yolo: /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/pre_ocr_weight_number/runs/detect/train2/weights/best.pt
+  resnet_axis:     /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/resnet_weights/best.pt
+  resnet_code_dir: /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/resnet_model
+  sam2_checkpoint: /home/revo/sam2-main/checkpoints/sam2.1_hiera_large.pt
+  sam2_config:     configs/sam2.1/sam2.1_hiera_l.yaml
+  # SAM2 must be run from its own repo directory (it needs its config files).
+  sam2_repo_dir:   /home/revo/sam2-main
+  # VAE checkpoint for Stage 6 (vae_encode). Relative to pipeline dir, or absolute.
+  vae_checkpoint:  vae/vae_checkpoint.pt
+
+
+# --- Output folder structure ---
+# Everything is saved under base_dir. Sub-folders are created automatically.
+output:
+  base_dir:   /home/revo/project/notes/WORKINGNOTEBOOKS/a_aguo_test_new/test_image_results8/
+
+  # Stage 1 - OCR
+  metadata_csv:           metadata.csv                   # plant name + weight per image
+  yolo_label_weight_json: yolo_label_weight_boxes.json   # pre-OCR YOLO label/weight_screen boxes + weight_g
+  weight_digit_result_dir: qc_visualizations/weight_digit_result/     # YOLOv8 digit detection QC images
+
+  # Stage 2 - Detection
+  bounding_boxes_json:    yolo_bounding_boxes.json       # YOLO boxes + tray/size/overlap filtering metadata + final kept IDs
+  detect_results_csv:     detect_results.csv             # one-row-per-image detection summary for quick QC
+
+  # Stage 3 - Segmentation
+  subimages_dir:          subimages/                     # one cropped image per kernel
+  masks_binary_dir:       masks_binary/                  # binary mask per kernel (white=kernel)
+  masks_combined_dir:     masks_combined/                # all binary mask kernels merged into one full image
+  masks_overlay_dir:      masks_overlay/                 # milk-yellow overlay on original image
+  kernel_contours_json:   kernel_contours.json            # per-kernel contour points (single file, backward compat)
+  contours_dir:           contours/                      # per-image contour files (fast lazy loading)
+
+  # Stage 4 - Measurements
+  measurements_csv:       measurements.csv               # per-kernel morphological measurements (human-readable)
+  measurements_parquet:   measurements.parquet           # per-kernel measurements (fast machine loading)
+  axis_results_json:      axis_results.json              # per-kernel bottom/top axis → reused by Stage 5
+  measurement_overlay_dir: measurement_overlay/          # full-tray overlays: final axis + centroid + top/bottom
+
+  # Stage 5 - Representative shape
+  median_outlines_csv:    median_outlines.csv            # plant-level median shape summaries (used by Stage 7)
+  rep_width_profiles_txt: rep_width_profiles.txt          # per-plant 100-pt median width profile for PCA
+  kernel_width_profiles_txt: kernel_width_profiles.txt   # per-kernel 100-pt width profiles (GUI hover)
+  representative_dir:     representative_shapes/         # median representative-shape plots
+
+  # Stage 6 - Latent encoding (VAE)
+  latent_traits_csv:      latent_traits.csv              # 5-dim VAE latent traits per plant (GWAS input)
+
+  # Stage 7 - Final assembly
+  final_individual_csv:   final_output_individual.csv      # per-kernel table with metadata attached
+  final_plant_median_csv: final_output_plant_median.csv    # plant-level median table
+
+  # QC images saved at every stage so you can verify results visually
+  qc_dir:                 qc_visualizations/
+
+
+# --- Physical calibration ---
+# The colored tray/frame is used as a reference object so the pipeline can
+# convert pixel measurements into physical units. Both blue and green frames are
+# supported by tray_color_ranges.
+calibration:
+  enabled: true
+  tray_size_mm: 100.0                # known physical edge length of the blue tray
+  tray_side_mode: mean_side          # mean_side | long_side | short_side
+  tray_search_box_ratios: [0.18, 0.14, 0.82, 0.84]  # search mostly in the central tray region
+  # Fixed fallback calibration (mm/px). When set, used as fallback if tray
+  # detection fails. With fixed camera height/distance, this is ~0.0525.
+  # Set to null to disable fallback and require tray detection.
+  fixed_mm_per_px: null
+  tray_color_ranges:
+    - name: blue
+      hsv_lower: [95, 60, 40]
+      hsv_upper: [140, 255, 255]
+    - name: green
+      hsv_lower: [35, 45, 35]
+      hsv_upper: [90, 255, 255]
+  tray_min_area_ratio: 0.03          # reject tiny blue components
+  tray_max_area_ratio: 0.45          # reject unrealistically large blue regions
+  tray_max_aspect_ratio: 1.45        # tray should be close to square
+  tray_min_fill_ratio: 0.45          # require a reasonably solid filled blue contour
+  tray_mask_kernel: 11               # morphology kernel for tray mask cleanup
+
+
+# --- YOLO detection settings ---
+detection:
+  confidence:      0.3    # matches the successful direct YOLO command
+  nms_iou:         null   # null = use Ultralytics default, matching bare yolo predict
+  inference_size:  null   # null = use model/default imgsz, matching bare yolo predict
+  max_detections:  1000   # matches max_det=1000 from the direct command
+  device:          null       # null = use runtime.gpu_device
+  tray_filter_enabled: true       # only keep boxes on the detected blue tray
+  tray_box_padding_ratio: 0.005   # small tolerance for tray-mask boundary errors
+  min_box_tray_overlap: 0.55      # delete boxes mostly outside the tray
+  require_box_center_in_tray: true
+  clip_boxes_to_tray: true        # trim edge boxes to the tray ROI before SAM2
+  edge_margin_ratio: 0.02         # fallback only when tray detection fails
+  edge_margin_px_min: 10          # fallback only when tray detection fails
+  max_box_aspect_ratio: 4.00      # delete very thin/wide bad boxes
+  min_boxes_for_size_filter: 8
+  min_area_ratio: 0.35
+  min_side_ratio: 0.45
+  max_area_ratio: 3.00
+  max_side_ratio: 2.20
+  nested_overlap_min: 0.86        # if one box almost contains another, keep the more plausible one
+  nested_area_ratio: 1.15
+  multi_center_min_count: 2       # delete large boxes that contain centers of multiple other boxes
+  multi_center_area_ratio: 1.25
+
+
+# --- Label / Weight screen YOLO detection (used by OCR stage) ---
+# A lightweight YOLO11 model trained to locate the paper label and the
+# digital scale display.  When available, OCR runs only inside these
+# detected regions instead of scanning broad image strips.
+label_weight_detection:
+  confidence: 0.25              # YOLO confidence threshold
+  label_class: label            # YOLO class name for the paper plant-label
+  weight_class: weight_screen   # YOLO class name for the digital scale display
+  fallback_to_split: true       # if YOLO finds nothing, fall back to split-region OCR
+
+
+# --- YOLOv8 digit detection (on weight_screen crops) ---
+weight_digit_detection:
+  confidence: 0.30
+
+
+# --- OCR ROI settings ---
+ocr:
+  device: null                  # null = use runtime.gpu_device; set "cpu" to disable OCR GPU
+  min_confidence: 0.3              # discard OCR lines below this confidence
+
+  split_line_ratio: 0.50           # split image here: search label above, weight below
+  label_ocr_scale: 1.8             # upscale the upper label scan if the label is small
+  weight_screen_ocr_scale: 3.0     # upscale each lower search crop before OCR
+  scan_max_dim: 2600               # cap the largest OCR crop dimension to control runtime
+  global_fallback: true            # if split-region OCR fails, fall back to broader heuristics
+  correct_weight: false            # true = ask the user to type the weight when OCR returns NOT FOUND
+  weight_min_value: 0.05           # sanity range for parsed scale values
+  weight_max_value: 999.99
+
+
+# --- SAM2 segmentation settings ---
+segmentation:
+  device:   null   # null = use runtime.gpu_device
+  padding:  20   # pixels of padding added around each YOLO bbox when cropping the subimage
+                 # a small padding prevents cutting off edge pixels of the kernel outline
+  subimage_canvas_size: 0     # 0 = keep original tight crop output; no fixed 640 canvas in pipeline
+
+
+# --- Contour filtering ---
+# There is no standalone contour stage anymore, but measurements/shapes still
+# extract one contour from each SAM binary mask on the fly.
+contour_filtering:
+  min_contour_area: 500    # discard contours smaller than this many pixels (noise)
+
+
+# --- Measurements ---
+measurements:
+  num_width_samples:   100   # number of positions along the kernel axis to sample width
+                             # (used for computing the mean width profile)
+  axis_source: resnet         # trained directed-axis model
+  axis_model_device: null     # null = use runtime.gpu_device
+  axis_model_imgsz: 0         # 0 = read imgsz from checkpoint
+  axis_model_preprocess: "square"  # square (current model). "" = read from checkpoint
+  axis_model_background: "gray"    # gray (current retrained model). "" = read from checkpoint
+  axis_model_margin: null     # null = read margin from checkpoint
+  mask_cleanup_open_kernel: 3
+  mask_cleanup_close_kernel: 5
+  mask_cleanup_smooth_kernel: 3
+  mask_cleanup_min_noise_area: 25
+  save_axis_candidate_images: false      # per-kernel axis QC images (DISABLED: ~N kernels images)
+  save_circularity_overlay: False       # per-tray circularity overlay disabled
+  save_count_overlay: false              # per-tray kernel-count overlay (DISABLED: ~N images)
+  outline_resample_points: 360        # first sample 360 outline count points, then equal-distance resample for geometry
+  endpoint_sharpness_neighbor_radius: 4   # broader contour neighborhood around each axis/outline intersection
+  endpoint_sharpness_scale_factors: [1.0, 2.0, 3.5]   # multi-scale tip-sharpness windows used to decide bottom vs top
+  bottom_sharpness_window: 6          # base contour step size used for local tip sharpness
+  bottom_near_fraction: 0.12          # width near the bottom tip for taper scoring
+  bottom_mid_fraction: 0.50           # mid-body width used to judge how pointy the tip is
+  bottom_upper_fraction: 0.75         # extra stabilizer: upper width should usually exceed bottom width
+  bottom_sharpness_score_weight: 1.0  # primary bottom/top cue from local tip sharpness
+  bottom_taper_score_weight: 0.35     # stabilize bottom/top with how strongly the tip opens up toward the mid-body
+  bottom_monotonic_score_weight: 0.15 # bonus when widths increase monotonically away from the candidate tip
+  round_kernel_filter_enabled: true   # kernels with circularity > threshold are skipped downstream
+  round_circularity_threshold: 0.90
+
+
+# --- Visualization / QC ---
+visualization:
+  # Master switch — set to false to disable ALL QC outputs
+  save_qc:          true
+
+  # Per-category switches (only apply when save_qc is true)
+  save_detection_qc:            true    # YOLO detection box overlays on tray images
+  save_ocr_qc:                  false   # OCR scan-region overlays
+  save_weight_digit_qc:         false   # Weight-screen digit detection crops
+  save_measurement_per_kernel_qc: false # Per-kernel axis+measurement QC images
+  save_measurement_overlay:     true    # Full-tray axis+centroid+top/bottom overlays
+  save_masks_overlay:           false   # Milk-yellow mask overlays on tray images
+  save_masks_combined:          false   # Full-image merged binary masks
+
+  # Milk-yellow BGR color for kernel mask overlays - resembles real maize kernel color.
+  # BGR format: Blue=100, Green=200, Red=230 gives a warm yellow.
+  milk_yellow_bgr:  [100, 200, 230]
+  overlay_alpha:    0.5   # blending strength: 0.0 = fully transparent, 1.0 = fully opaque
+
+
+# --- Representative shape ---
+representative_shape:
+  smooth_enabled: true        # Gaussian-smooth the median half-width profile before VAE
+  smooth_sigma:   1.5         # sigma for gaussian_filter1d (higher = more smoothing)
+  skip_round_kernels: false   # skip kernels with circularity above the threshold from the plant median profile
+  round_circularity_threshold: 0.95  # circularity above this = round (only used when skip_round_kernels is true)

@@ -1,0 +1,72 @@
+# ResNet-style angle regression config.
+# Task: RGB kernel crop -> cos(theta), sin(theta)
+#
+# Run from this folder:
+#   python train_resnet_angle.py config.yaml
+#
+# Current recommended pipeline:
+#   1. pipeline outputs one tight RGB crop per kernel
+#   2. this dataloader pads the short side to a square with black pixels
+#   3. the square image is resized to 256x256 for batching
+#   4. the model predicts directed angle labels: cos(theta), sin(theta)
+
+data:
+  # Label CSV. Required columns:
+  # image_label, status, cos_theta, sin_theta
+  labels_csv: /data/run01/scxj083/SEED_project/cnn_axis/angle_labels_directed.csv
+
+  # RGB kernel crop folder. Every image_label in labels_csv must exist here.
+  images_dir: /data/run01/scxj083/SEED_project/cnn_axis/subimages
+
+  # Only rows with this status are used for train/val/test.
+  status: ok
+
+output:
+  project: runs/angle
+  name: rgb_square256
+  exist_ok: false
+
+training:
+  # AMP is intentionally not used in train_resnet_angle.py.
+  epochs: 300
+  early_stop_patience: 30
+  batch_size: 32
+  lr: 0.0001
+  weight_decay: 0.0001
+  num_workers: 4
+  device: auto
+  seed: 42
+  save_samples: 16
+
+preprocess:
+  # Final recommended RGB-only preprocessing:
+  # 1. read single kernel RGB crop with original a x b size
+  # 2. pad the short side with neutral gray to make max(a,b) x max(a,b)
+  # 3. resize the square to image_size x image_size
+  # These operations do not change the angle label.
+  mode: square
+  image_size: 256
+
+  # Only used by preprocess.mode: crop/mask; ignored by square mode.
+  margin_ratio: 0.25
+  background: gray
+
+  # Light photometric augmentation for the train split only.
+  brightness: 0.04
+  contrast: 0.04
+
+  # Gaussian noise augmentation for the train split only.
+  # noise_prob: probability per train sample; 0.30 means about 30% each epoch.
+  # noise_std: standard deviation in 0-255 pixel units.
+  noise_prob: 0.30
+  noise_std: 8.0
+
+  # Direction labels are adjusted correctly if flips are enabled.
+  # Keep these off for the first clean baseline.
+  hflip_prob: 0.0
+  vflip_prob: 0.0
+
+model:
+  stem_channels: 32
+  dropout: 0.20
+  norm_loss_weight: 0.0

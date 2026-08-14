@@ -1,0 +1,40 @@
+# ===========================================================================
+# β-VAE — unsupervised shape trait discovery from kernel width profiles
+# ===========================================================================
+# Compresses each plant's 100-point median full-width profile into 5 latent
+# dimensions.  These 5 latent values serve as data-driven phenotypes for GWAS.
+#
+# Architecture:  100 → Conv1d(s=2) → 50 → Conv1d(s=2) → 25 → Flatten → 5
+#                All lengths are exact integer divisions — no odd-length issues.
+#
+# Reference
+#   Yun T et al. Unsupervised representation learning improves genomic discovery
+#   and risk prediction for respiratory and circulatory functions and diseases.
+#   Nature Genetics 56, 1604–1613 (2024).
+# ===========================================================================
+
+data:
+  profile_path: ../HaiNan_results_100images/rep_width_profiles.txt
+
+output:
+  project: runs
+  name: profile_vae_latent5
+  exist_ok: true
+
+model:
+  latent_dim: 5
+  channels: [32, 64]               # 2 Conv1d layers: 100→50→25
+  kernel_size: 5
+  dropout: 0.1
+
+training:
+  epochs: 300
+  batch_size: 32                   # RTX 5090 — increase further if VRAM allows
+  lr: 0.0005
+  weight_decay: 0.00001
+  beta: 0.001
+  early_stop_patience: 50
+  lr_patience: 25
+  num_workers: 4
+  device: auto
+  seed: 42
