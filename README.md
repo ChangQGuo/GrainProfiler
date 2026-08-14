@@ -1,3 +1,11 @@
+<div align="center">
+
+**🌐 Language / 语言**
+
+[![中文版](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E4%B8%AD%E6%96%87%E7%89%88-2ea44f?style=for-the-badge)](README.md)　[![English](https://img.shields.io/badge/English-English-0969da?style=for-the-badge)](README_EN.md)
+
+</div>
+
 # KernelMPS — 玉米籽粒高通量表型识别系统
 
 > **Maize Kernel Morphology Phenotyping System**
@@ -88,51 +96,72 @@ KernelMPS 是一个「**拍照即出表型**」的玉米籽粒形态高通量分
 ```
 seed_project_v1.0/
 ├── README.md                     # 中文说明（本文件）
-├── README_EN.md                  # English README
-├── kernelmps.exe                 # Windows 桌面软件（普通用户直接双击使用）
+├── README_EN.md                  # 英文说明
+├── LICENSE                       # 专有许可（闭源 · 保留所有权利）
+├── .gitignore                    # git 忽略规则（数据 / 缓存 / 超大文件）
+├── .gitattributes                # Git LFS 追踪规则（kernelmps.exe）
+├── kernelmps.exe                 # Windows 桌面软件（Git LFS 存储，双击即用）
+├── kernelmps.spec                # PyInstaller 打包脚本（生成 kernelmps.exe）
+├── yolo_environment.yml          # conda 环境：YOLO 检测 / 数码管
+├── SAM2_environment.yml          # conda 环境：SAM2 分割 / 测量
+├── paddle_environment.yml        # conda 环境：PaddleOCR 标签文本
 │
 ├── pipeline/                     # 8 阶段流水线核心
 │   ├── main.py                   # 编排器（pre_ocr→ocr→detection→segmentation→measurements→shapes→vae_encode→assembly）
-│   ├── config.yaml               # 全局配置（模型路径/阈值/标定/输出）
-│   ├── env.local.yaml.example    # 本地机器覆盖配置模板（复制为 env.local.yaml 后填自己的路径）
-│   ├── ocr/                      # Stage 0-1：标签/秤屏检测 + OCR + 文本解析
-│   │   ├── yolo_label_detect.py  # YOLO11 找标签/秤屏 ROI + YOLOv8n 数码管数字
+│   ├── config.yaml               # 全局配置（模型路径 / 阈值 / 标定 / 输出）
+│   ├── env.local.yaml.example    # 本机覆盖配置模板（复制为 env.local.yaml）
+│   ├── README.md                 # 流水线说明
+│   ├── ocr/                      # Stage 0-1：标签 / 秤屏检测 + OCR
+│   │   ├── yolo_label_detect.py  # YOLO11 标签/秤屏 ROI + YOLOv8n 数码管数字
 │   │   ├── metadata_extraction.py# PaddleOCR 标签文本 + 重量解析 + 标定
 │   │   ├── qc_render.py          # OCR QC 渲染（视图层）
-│   │   └── text_parse.py         # 纯文本归一化与候选解析
-│   ├── detection/                # Stage 2：YOLO11x 籽粒检测 + 4 级级联过滤
-│   │   └── yolo_detect.py
-│   ├── segmentation/             # Stage 3：SAM2 实例分割
-│   │   └── sam_segment.py
+│   │   └── text_parse.py         # 文本归一化与候选解析
+│   ├── detection/                # Stage 2：籽粒检测
+│   │   └── yolo_detect.py        # YOLO11x 检测 + 4 级级联过滤
+│   ├── segmentation/             # Stage 3：实例分割
+│   │   └── sam_segment.py        # SAM2 掩码 + RGB 子图（中性灰底）
 │   ├── measurements/             # Stage 4：有向轴 + 形态测量
 │   │   ├── kernel_metrics.py     # 门面：编排 + ResNet 轴预测 + 记录组装 + run()
-│   │   ├── geometry.py           # 纯几何/测量原语（轮廓重采样/交点/宽度/面积/圆形度）
-│   │   ├── axis.py               # 轴候选生成/多线索打分/择优/局部精修
-│   │   └── qc.py                 # 测量 QC 渲染（视图层）
-│   ├── processing/               # Stage 5：代表性形状 + 轮廓提取
-│   │   ├── representative_shape.py
-│   │   └── contour_extraction.py
+│   │   ├── geometry.py           # 纯几何原语（重采样 / 交点 / 宽度 / 面积 / 圆形度）
+│   │   ├── axis.py               # 轴候选生成 / 多线索打分 / 择优 / 精修
+│   │   └── qc.py                 # 测量 QC 渲染
+│   ├── processing/               # Stage 5：代表性形状
+│   │   ├── representative_shape.py # 植株级中位数轮廓 + 100 维宽度 profile
+│   │   └── contour_extraction.py   # 轮廓提取（最大连通域）
 │   ├── vae/                      # Stage 6：VAE 潜性状编码
 │   │   ├── vae_encode.py         # 100 维轮廓 → 5 维潜变量
-│   │   └── model.py              # VAE Encoder（编码阶段用）
+│   │   ├── model.py              # VAE Encoder（编码阶段）
+│   │   └── vae_checkpoint.pt     # 已训练 VAE 权重（随仓库分发，极小）
 │   ├── output/                   # Stage 7：最终 CSV 组装
-│   │   └── assembler.py
-│   └── utils/                    # 共享工具
-│       ├── config.py             # 共享配置加载（env.local.yaml 覆盖）
-│       ├── kernel_id.py          # 籽粒身份键解析（唯一事实源）
-│       ├── bbox.py               # YOLO bbox JSON 解析（唯一事实源）
-│       ├── calibration.py        # 托盘标定（mm/px）
-│       ├── device.py             # GPU 设备选择
-│       └── visualization.py      # 绘图工具
+│   │   └── assembler.py          # final_output_individual / plant_median
+│   ├── utils/                    # 共享工具
+│   │   ├── config.py             # 共享配置加载（env.local.yaml 覆盖）
+│   │   ├── kernel_id.py          # 籽粒身份键解析（唯一事实源）
+│   │   ├── bbox.py               # YOLO bbox JSON 解析（唯一事实源）
+│   │   ├── calibration.py        # 托盘标定（mm/px）
+│   │   ├── device.py             # GPU 设备选择
+│   │   └── visualization.py      # 绘图工具
+│   └── notebooks/                # 开发 / 调试笔记本
+│       ├── YOLOv11_train.ipynb         # YOLO 训练
+│       ├── YOLOv11_display_train.ipynb # YOLO 训练可视化
+│       ├── circularity_nor_distribution.ipynb # 圆形度分布分析
+│       ├── ocr_ssocr.ipynb       # ssocr OCR 尝试
+│       └── ocr_test.ipynb        # OCR 测试
 │
 ├── kernelmps/                    # 桌面 GUI 源码（Windows 构建源）
-│   ├── main.py / __main__.py     # 程序入口
+│   ├── main.py                   # 程序入口
+│   ├── __main__.py               # python -m kernelmps 入口
+│   ├── __init__.py               # 包标记
 │   ├── app/                      # 主窗口 + 数据加载
-│   │   ├── main_window.py        # QMainWindow：三栏工作区 + 分析面板入口
-│   │   ├── data_loader.py        # 结果文件加载与索引（Parquet 优先 + 轮廓懒加载）
-│   │   └── models.py / settings.py
-│   ├── widgets/                  # 各面板组件
-│   │   ├── nav_panel.py          # 样本列表/筛选/主题
+│   │   ├── __init__.py           # 包标记
+│   │   ├── main_window.py        # QMainWindow：三栏工作区 + 分析面板
+│   │   ├── data_loader.py        # 结果加载（Parquet 优先 + 轮廓懒加载）
+│   │   ├── models.py             # 数据模型
+│   │   └── settings.py           # 设置
+│   ├── widgets/                  # 面板组件
+│   │   ├── __init__.py           # 包标记
+│   │   ├── welcome_widget.py     # 欢迎页
+│   │   ├── nav_panel.py          # 样本列表 / 筛选 / 主题
 │   │   ├── sample_view.py        # QGraphicsView 交互式托盘图 + 轮廓叠加
 │   │   ├── median_chart.py       # 半宽轮廓图（双向联动）
 │   │   ├── sample_info_panel.py  # 元数据 + 测量表
@@ -140,55 +169,77 @@ seed_project_v1.0/
 │   │   ├── pca_window.py         # PCA 散点
 │   │   ├── vae_latent_window.py  # VAE 潜变量实时解码（ONNX）
 │   │   ├── sample_analysis_window.py # 性状分布
-│   │   └── similarity_boxplot.py
+│   │   └── similarity_boxplot.py # 相似性箱线图
 │   ├── graphics/                 # QGraphics 图元
+│   │   ├── __init__.py           # 包标记
+│   │   ├── kernel_contour_item.py # 籽粒轮廓图元
+│   │   ├── axis_line_item.py     # 轴线图元
+│   │   └── axis_endpoint_item.py # 轴端点图元
 │   ├── models/                   # Qt 表格模型
-│   ├── utils/                    # 坐标变换/导出
-│   └── resources/                # 光标/图标资源
-├── kernelmps.spec                # PyInstaller 打包脚本（Windows）
+│   │   ├── __init__.py           # 包标记
+│   │   ├── pandas_model.py       # pandas 表格模型
+│   │   └── sort_filter_proxy.py  # 排序 / 筛选代理
+│   ├── utils/                    # 工具
+│   │   ├── __init__.py           # 包标记
+│   │   ├── coordinate_transform.py # 坐标变换
+│   │   ├── export.py             # CSV 导出
+│   │   ├── image_conversion.py   # 图像转换
+│   │   └── photo_finder.py       # 照片查找
+│   └── resources/                # 光标 / 图标资源
+│       ├── cursors.py            # 光标定义
+│       └── gen*.py / generate_assets.py # 资源生成脚本（一次性）
+│
 ├── onnx_models/                  # VAE Decoder ONNX（GUI 潜变量窗口用）
+│   ├── profile_vae_latent5.onnx        # 解码器图结构
+│   ├── profile_vae_latent5.onnx.data   # 解码器权重（外部数据）
+│   ├── vae_col_mean.npy          # 训练集逐位均值（反归一化）
+│   └── vae_col_std.npy           # 训练集逐位标准差（反归一化）
 ├── kernelmps_minifig/            # GUI 图标资源
+│   ├── 图标.png                  # 应用图标
+│   └── 玉米.png                  # 玉米图标
 │
 ├── resnet/                       # 有向轴回归模型（自建 ~2.2M）
-│   ├── model.py                  # ResNetAngleRegressor + BasicBlock（支持 3/4 通道）
-│   ├── preprocess.py             # square/crop/mask/none 四种预处理
+│   ├── model.py                  # ResNetAngleRegressor + BasicBlock（3/4 通道）
+│   ├── preprocess.py             # square/crop/mask/none 预处理
 │   ├── train_resnet_angle.py     # 训练（方向余弦损失）
 │   ├── predict_resnet_angle.py   # 推理
 │   ├── test_resnet_angle.py      # 评估
 │   ├── plot_results.py           # 独立绘图（无需 PyTorch）
-│   ├── config.yaml
-│   └── run_train.sh / run_test.sh
+│   ├── config.yaml               # 训练配置
+│   ├── run_train.sh              # 训练启动脚本
+│   ├── run_test.sh               # 测试启动脚本
+│   └── README.md                 # 说明
 │
 ├── vae/                          # β-VAE 无监督形状性状
 │   ├── model.py                  # 1D-CNN Encoder/Decoder（100→50→25→5）
-│   ├── train_vae.py              # MSE + β·KL
-│   ├── dataset.py
+│   ├── dataset.py                # 数据加载 + 逐位 Z-score
+│   ├── train_vae.py              # 训练（MSE + β·KL）
+│   ├── export_onnx.py            # Decoder → ONNX
 │   ├── interpret_latents.py      # 潜在维度扰动分析
 │   ├── latent_shape_explorer.py  # 极值解码可视化
-│   ├── latent_perturbation_grid.py
+│   ├── latent_perturbation_grid.py # 扰动网格
 │   ├── reconstruct_samples.py    # 代表性样本重建
-│   ├── export_onnx.py            # Decoder → ONNX
-│   ├── config.yaml
-│   └── run_*.sh
+│   ├── latent_load_curves.ipynb  # 载荷曲线分析
+│   ├── latent_load_curves.png    # 载荷曲线图
+│   ├── config.yaml               # 训练配置
+│   ├── run_*.sh                  # 各启动脚本
+│   ├── __init__.py               # 包标记
+│   └── README.md                 # 说明
 │
 ├── label_mini_program/           # 人工标注工具
-│   ├── angle_labeler.py          # OpenCV GUI 交互式角度标注
+│   ├── angle_labeler.py          # OpenCV 交互式角度标注
 │   ├── centroid_overlay.py       # 质心叠加
 │   └── label_program_guide.ipynb # 标注指南
 │
-├── project_figs/                 # 图示与软件演示录屏
-│   ├── workflow_figure.png       # 全流程总览图
-│   ├── Main Panel Interaction.gif # 主面板交互演示录屏
-│   └── VAE_latent_explorer.gif   # VAE 潜变量探索演示录屏
-│
 ├── downstream_analysis_scr/      # 下游分析脚本
-│   ├── 1.PCA_analyze.R           # PCA 降维分析
+│   ├── 1.PCA_analyze.R           # PCA 降维
 │   ├── 2.correlation heatmap.R   # 相关性热图
 │   └── 3.seed_size_r2.ipynb      # 籽粒尺寸可重复性评估
 │
-├── yolo_environment.yml          # YOLO 环境（检测/数码管）
-├── SAM2_environment.yml          # SAM2 环境（分割）
-└── paddle_environment.yml        # PaddleOCR 环境（标签文本）
+└── project_figs/                 # 图示与演示
+    ├── workflow_figure.png       # 全流程总览图
+    ├── Main Panel Interaction.gif # 主面板交互录屏
+    └── VAE_latent_explorer.gif   # VAE 潜变量探索录屏
 ```
 
 ---

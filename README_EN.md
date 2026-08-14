@@ -1,3 +1,11 @@
+<div align="center">
+
+**🌐 Language / 语言**
+
+[![中文版](https://img.shields.io/badge/%E4%B8%AD%E6%96%87-%E4%B8%AD%E6%96%87%E7%89%88-2ea44f?style=for-the-badge)](README.md)　[![English](https://img.shields.io/badge/English-English-0969da?style=for-the-badge)](README_EN.md)
+
+</div>
+
 # KernelMPS — Maize Kernel High-Throughput Morphology Phenotyping System
 
 > **Maize Kernel Morphology Phenotyping System**
@@ -43,7 +51,7 @@
   - [12. Manual Annotation Tool](#12-manual-annotation-tool)
   - [13. FAQ](#13-faq)
   - [14. Downstream Analysis Scripts](#14-downstream-analysis-scripts)
-- [15. Copyright & License](#15-copyright--license)
+  - [15. Copyright & License](#15-copyright--license)
 
 ---
 
@@ -89,49 +97,70 @@ KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping sy
 seed_project_v1.0/
 ├── README.md                     # Chinese README
 ├── README_EN.md                  # English README (this file)
-├── kernelmps.exe                 # Windows desktop app (regular users: double-click to run)
+├── LICENSE                       # proprietary license (closed-source · all rights reserved)
+├── .gitignore                    # git ignore rules (data / caches / large files)
+├── .gitattributes                # Git LFS tracking rules (kernelmps.exe)
+├── kernelmps.exe                 # Windows desktop app (stored via Git LFS, double-click to run)
+├── kernelmps.spec                # PyInstaller build spec (produces kernelmps.exe)
+├── yolo_environment.yml          # conda env: YOLO detection / digits
+├── SAM2_environment.yml          # conda env: SAM2 segmentation / measurements
+├── paddle_environment.yml        # conda env: PaddleOCR label text
 │
 ├── pipeline/                     # 8-stage pipeline core
 │   ├── main.py                   # orchestrator (pre_ocr→ocr→detection→segmentation→measurements→shapes→vae_encode→assembly)
 │   ├── config.yaml               # global config (model paths / thresholds / calibration / output)
-│   ├── env.local.yaml.example    # local machine override template (copy to env.local.yaml and fill in your paths)
-│   ├── ocr/                      # Stage 0-1: label/scale-screen detection + OCR + text parsing
+│   ├── env.local.yaml.example    # local override template (copy to env.local.yaml)
+│   ├── README.md                 # pipeline notes
+│   ├── ocr/                      # Stage 0-1: label/scale-screen detection + OCR
 │   │   ├── yolo_label_detect.py  # YOLO11 label/scale-screen ROIs + YOLOv8n seven-segment digits
 │   │   ├── metadata_extraction.py# PaddleOCR label text + weight parsing + calibration
 │   │   ├── qc_render.py          # OCR QC rendering (view layer)
-│   │   └── text_parse.py         # pure text normalization & candidate parsing
-│   ├── detection/                # Stage 2: YOLO11x kernel detection + 4-level cascade filter
-│   │   └── yolo_detect.py
-│   ├── segmentation/             # Stage 3: SAM2 instance segmentation
-│   │   └── sam_segment.py
+│   │   └── text_parse.py         # text normalization & candidate parsing
+│   ├── detection/                # Stage 2: kernel detection
+│   │   └── yolo_detect.py        # YOLO11x detection + 4-level cascade filter
+│   ├── segmentation/             # Stage 3: instance segmentation
+│   │   └── sam_segment.py        # SAM2 masks + RGB crops (neutral-gray bg)
 │   ├── measurements/             # Stage 4: directed axis + morphology
 │   │   ├── kernel_metrics.py     # facade: orchestration + ResNet axis + record assembly + run()
-│   │   ├── geometry.py           # pure geometry primitives (contour resampling/intersections/width/area/circularity)
+│   │   ├── geometry.py           # pure geometry primitives (resampling/intersections/width/area/circularity)
 │   │   ├── axis.py               # axis candidate generation / multi-cue scoring / selection / refinement
-│   │   └── qc.py                 # measurement QC rendering (view layer)
-│   ├── processing/               # Stage 5: representative shape + contour extraction
-│   │   ├── representative_shape.py
-│   │   └── contour_extraction.py
+│   │   └── qc.py                 # measurement QC rendering
+│   ├── processing/               # Stage 5: representative shape
+│   │   ├── representative_shape.py # per-plant median outline + 100-dim width profile
+│   │   └── contour_extraction.py   # contour extraction (largest connected component)
 │   ├── vae/                      # Stage 6: VAE latent-trait encoding
 │   │   ├── vae_encode.py         # 100-dim profile → 5-dim latent traits
-│   │   └── model.py              # VAE Encoder (used at encoding time)
+│   │   ├── model.py              # VAE Encoder (used at encoding time)
+│   │   └── vae_checkpoint.pt     # trained VAE weights (shipped, tiny)
 │   ├── output/                   # Stage 7: final CSV assembly
-│   │   └── assembler.py
-│   └── utils/                    # shared utilities
-│       ├── config.py             # shared config loading (env.local.yaml override)
-│       ├── kernel_id.py          # kernel identity parsing (single source of truth)
-│       ├── bbox.py               # YOLO bbox JSON parsing (single source of truth)
-│       ├── calibration.py        # tray calibration (mm/px)
-│       ├── device.py             # GPU device selection
-│       └── visualization.py      # drawing helpers
+│   │   └── assembler.py          # final_output_individual / plant_median
+│   ├── utils/                    # shared utilities
+│   │   ├── config.py             # shared config loading (env.local.yaml override)
+│   │   ├── kernel_id.py          # kernel identity parsing (single source of truth)
+│   │   ├── bbox.py               # YOLO bbox JSON parsing (single source of truth)
+│   │   ├── calibration.py        # tray calibration (mm/px)
+│   │   ├── device.py             # GPU device selection
+│   │   └── visualization.py      # drawing helpers
+│   └── notebooks/                # development / debugging notebooks
+│       ├── YOLOv11_train.ipynb         # YOLO training
+│       ├── YOLOv11_display_train.ipynb # YOLO training visualization
+│       ├── circularity_nor_distribution.ipynb # circularity distribution analysis
+│       ├── ocr_ssocr.ipynb       # ssocr OCR experiment
+│       └── ocr_test.ipynb        # OCR testing
 │
 ├── kernelmps/                    # desktop GUI source (Windows build source)
-│   ├── main.py / __main__.py     # entry points
+│   ├── main.py                   # entry point
+│   ├── __main__.py               # python -m kernelmps entry
+│   ├── __init__.py               # package marker
 │   ├── app/                      # main window + data loading
-│   │   ├── main_window.py        # QMainWindow: three-pane workspace + analysis panel entry
-│   │   ├── data_loader.py        # result loading & indexing (Parquet-first + lazy contours)
-│   │   └── models.py / settings.py
+│   │   ├── __init__.py           # package marker
+│   │   ├── main_window.py        # QMainWindow: three-pane workspace + analysis panels
+│   │   ├── data_loader.py        # result loading (Parquet-first + lazy contours)
+│   │   ├── models.py             # data models
+│   │   └── settings.py           # settings
 │   ├── widgets/                  # panel widgets
+│   │   ├── __init__.py           # package marker
+│   │   ├── welcome_widget.py     # welcome page
 │   │   ├── nav_panel.py          # sample list / filter / theme
 │   │   ├── sample_view.py        # QGraphicsView interactive tray photo + contour overlay
 │   │   ├── median_chart.py       # half-width profile chart (cross-linked)
@@ -140,55 +169,77 @@ seed_project_v1.0/
 │   │   ├── pca_window.py         # PCA scatter
 │   │   ├── vae_latent_window.py  # VAE latent real-time decode (ONNX)
 │   │   ├── sample_analysis_window.py # trait distribution
-│   │   └── similarity_boxplot.py
+│   │   └── similarity_boxplot.py # similarity boxplot
 │   ├── graphics/                 # QGraphics items
+│   │   ├── __init__.py           # package marker
+│   │   ├── kernel_contour_item.py # kernel contour item
+│   │   ├── axis_line_item.py     # axis line item
+│   │   └── axis_endpoint_item.py # axis endpoint item
 │   ├── models/                   # Qt table models
-│   ├── utils/                    # coordinate transforms / export
+│   │   ├── __init__.py           # package marker
+│   │   ├── pandas_model.py       # pandas table model
+│   │   └── sort_filter_proxy.py  # sort/filter proxy
+│   ├── utils/                    # utilities
+│   │   ├── __init__.py           # package marker
+│   │   ├── coordinate_transform.py # coordinate transforms
+│   │   ├── export.py             # CSV export
+│   │   ├── image_conversion.py   # image conversion
+│   │   └── photo_finder.py       # photo finder
 │   └── resources/                # cursor/icon resources
-├── kernelmps.spec                # PyInstaller build spec (Windows)
+│       ├── cursors.py            # cursor definitions
+│       └── gen*.py / generate_assets.py # asset generation scripts (one-off)
+│
 ├── onnx_models/                  # VAE Decoder ONNX (used by GUI latent window)
+│   ├── profile_vae_latent5.onnx        # decoder graph
+│   ├── profile_vae_latent5.onnx.data   # decoder weights (external data)
+│   ├── vae_col_mean.npy          # training per-position mean (denormalization)
+│   └── vae_col_std.npy           # training per-position std (denormalization)
 ├── kernelmps_minifig/            # GUI icon resources
+│   ├── 图标.png                  # app icon
+│   └── 玉米.png                  # maize icon
 │
 ├── resnet/                       # directed-axis regression model (custom ~2.2M)
-│   ├── model.py                  # ResNetAngleRegressor + BasicBlock (3/4-channel support)
-│   ├── preprocess.py             # square/crop/mask/none preprocessing modes
+│   ├── model.py                  # ResNetAngleRegressor + BasicBlock (3/4-channel)
+│   ├── preprocess.py             # square/crop/mask/none preprocessing
 │   ├── train_resnet_angle.py     # training (direction cosine loss)
 │   ├── predict_resnet_angle.py   # inference
 │   ├── test_resnet_angle.py      # evaluation
 │   ├── plot_results.py           # standalone plotting (no PyTorch required)
-│   ├── config.yaml
-│   └── run_train.sh / run_test.sh
+│   ├── config.yaml               # training config
+│   ├── run_train.sh              # training launch script
+│   ├── run_test.sh               # test launch script
+│   └── README.md                 # notes
 │
 ├── vae/                          # β-VAE unsupervised shape traits
 │   ├── model.py                  # 1D-CNN Encoder/Decoder (100→50→25→5)
-│   ├── train_vae.py              # MSE + β·KL
-│   ├── dataset.py
+│   ├── dataset.py                # data loading + per-position Z-score
+│   ├── train_vae.py              # training (MSE + β·KL)
+│   ├── export_onnx.py            # Decoder → ONNX
 │   ├── interpret_latents.py      # latent-dimension perturbation analysis
 │   ├── latent_shape_explorer.py  # extreme-decoding visualization
-│   ├── latent_perturbation_grid.py
+│   ├── latent_perturbation_grid.py # perturbation grid
 │   ├── reconstruct_samples.py    # representative-sample reconstruction
-│   ├── export_onnx.py            # Decoder → ONNX
-│   ├── config.yaml
-│   └── run_*.sh
+│   ├── latent_load_curves.ipynb  # loading-curve analysis
+│   ├── latent_load_curves.png    # loading-curve plot
+│   ├── config.yaml               # training config
+│   ├── run_*.sh                  # launch scripts
+│   ├── __init__.py               # package marker
+│   └── README.md                 # notes
 │
 ├── label_mini_program/           # manual annotation tool
-│   ├── angle_labeler.py          # OpenCV GUI interactive angle labeling
+│   ├── angle_labeler.py          # OpenCV interactive angle labeling
 │   ├── centroid_overlay.py       # centroid overlay
 │   └── label_program_guide.ipynb # labeling guide
-│
-├── project_figs/                 # figures & software demo recordings
-│   ├── workflow_figure.png       # overall workflow diagram
-│   ├── Main Panel Interaction.gif # main-panel interaction demo
-│   └── VAE_latent_explorer.gif   # VAE latent-explorer demo
 │
 ├── downstream_analysis_scr/      # downstream analysis scripts
 │   ├── 1.PCA_analyze.R           # PCA dimensionality reduction
 │   ├── 2.correlation heatmap.R   # correlation heatmap
 │   └── 3.seed_size_r2.ipynb      # seed-size reproducibility evaluation
 │
-├── yolo_environment.yml          # YOLO env (detection / digits)
-├── SAM2_environment.yml          # SAM2 env (segmentation)
-└── paddle_environment.yml        # PaddleOCR env (label text)
+└── project_figs/                 # figures & demos
+    ├── workflow_figure.png       # overall workflow diagram
+    ├── Main Panel Interaction.gif # main-panel interaction demo
+    └── VAE_latent_explorer.gif   # VAE latent-explorer demo
 ```
 
 ---
