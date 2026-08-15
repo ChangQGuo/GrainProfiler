@@ -134,19 +134,13 @@ seed_project_v1.0/
 │   │   └── vae_checkpoint.pt     # 已训练 VAE 权重（随仓库分发，极小）
 │   ├── output/                   # Stage 7：最终 CSV 组装
 │   │   └── assembler.py          # final_output_individual / plant_median
-│   ├── utils/                    # 共享工具
+│   └── utils/                    # 共享工具
 │   │   ├── config.py             # 共享配置加载（env.local.yaml 覆盖）
 │   │   ├── kernel_id.py          # 籽粒身份键解析（唯一事实源）
 │   │   ├── bbox.py               # YOLO bbox JSON 解析（唯一事实源）
 │   │   ├── calibration.py        # 托盘标定（mm/px）
 │   │   ├── device.py             # GPU 设备选择
 │   │   └── visualization.py      # 绘图工具
-│   └── notebooks/                # 开发 / 调试笔记本
-│       ├── YOLOv11_train.ipynb         # YOLO 训练
-│       ├── YOLOv11_display_train.ipynb # YOLO 训练可视化
-│       ├── circularity_nor_distribution.ipynb # 圆形度分布分析
-│       ├── ocr_ssocr.ipynb       # ssocr OCR 尝试
-│       └── ocr_test.ipynb        # OCR 测试
 │
 ├── kernelmps/                    # 桌面 GUI 源码（Windows 构建源）
 │   ├── main.py                   # 程序入口
@@ -439,7 +433,7 @@ pyinstaller kernelmps.spec   # 产物在 dist/kernelmps.exe
 | β-VAE | `pipeline/vae/vae_checkpoint.pt` | ✅ 已含 | 极小（~19K 参数） |
 | VAE Decoder ONNX | `onnx_models/` | ✅ 已含 | GUI 潜变量窗口实时解码 |
 
-> 训练脚本均在 `resnet/` 与 `vae/` 目录；YOLO 训练使用 ultralytics 标准流程（`notebook/YOLOv11_train.ipynb` 逻辑，可自行准备数据集）。各权重路径在 `config.yaml` 中配置，建议用 `env.local.yaml` 覆盖。
+> 训练脚本均在 `resnet/` 与 `vae/` 目录；YOLO 训练遵循 ultralytics 标准流程。各权重路径在 `config.yaml` 中配置，建议用 `env.local.yaml` 覆盖。
 
 ---
 

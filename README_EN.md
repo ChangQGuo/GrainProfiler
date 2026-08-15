@@ -134,19 +134,13 @@ seed_project_v1.0/
 │   │   └── vae_checkpoint.pt     # trained VAE weights (shipped, tiny)
 │   ├── output/                   # Stage 7: final CSV assembly
 │   │   └── assembler.py          # final_output_individual / plant_median
-│   ├── utils/                    # shared utilities
-│   │   ├── config.py             # shared config loading (env.local.yaml override)
-│   │   ├── kernel_id.py          # kernel identity parsing (single source of truth)
-│   │   ├── bbox.py               # YOLO bbox JSON parsing (single source of truth)
-│   │   ├── calibration.py        # tray calibration (mm/px)
-│   │   ├── device.py             # GPU device selection
-│   │   └── visualization.py      # drawing helpers
-│   └── notebooks/                # development / debugging notebooks
-│       ├── YOLOv11_train.ipynb         # YOLO training
-│       ├── YOLOv11_display_train.ipynb # YOLO training visualization
-│       ├── circularity_nor_distribution.ipynb # circularity distribution analysis
-│       ├── ocr_ssocr.ipynb       # ssocr OCR experiment
-│       └── ocr_test.ipynb        # OCR testing
+│   └── utils/                    # shared utilities
+│       ├── config.py             # shared config loading (env.local.yaml override)
+│       ├── kernel_id.py          # kernel identity parsing (single source of truth)
+│       ├── bbox.py               # YOLO bbox JSON parsing (single source of truth)
+│       ├── calibration.py        # tray calibration (mm/px)
+│       ├── device.py             # GPU device selection
+│       └── visualization.py      # drawing helpers
 │
 ├── kernelmps/                    # desktop GUI source (Windows build source)
 │   ├── main.py                   # entry point
