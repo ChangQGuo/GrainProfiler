@@ -217,7 +217,7 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
         ax.axvline(val, color=c, linestyle=ls, linewidth=2.8, label=label)
     ax.set_xlabel("Absolute Error (degrees)")
     ax.set_ylabel("Count")
-    ax.set_title("(a) Angle Error Distribution")
+    ax.set_title("Angle Error Distribution")
     ax.legend(loc="upper right", framealpha=0.92)
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
 
@@ -239,7 +239,7 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
     ax.set_xlim(0, 360); ax.set_ylim(0, 360)
     ax.set_xlabel("Manual Angle (degrees)")
     ax.set_ylabel("Predicted Angle (degrees)")
-    ax.set_title("(b) Manual vs Predicted")
+    ax.set_title("Manual vs Predicted")
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
     ax.set_aspect("equal")
 
@@ -264,7 +264,7 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
                 fontsize=17, color=c, fontweight="bold")
     ax.set_xlabel("Absolute Error (degrees)")
     ax.set_ylabel("Cumulative Fraction")
-    ax.set_title("(c) Cumulative Error Distribution")
+    ax.set_title("Cumulative Error Distribution")
     ax.set_xlim(left=0); ax.set_ylim(0, 1.03)
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
 
@@ -284,13 +284,18 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
            edgecolor="#1A4B73", linewidth=1.2)
     ax.errorbar(centers, means, yerr=stds, fmt="none",
                 ecolor=RED_BRIGHT, capsize=7, linewidth=2.5)
+    # n-count labels: keep them inside the axes (headroom so they never
+    # overlap the top border)
+    label_top = max((m + stds[i] + 0.55 for i, m in enumerate(means)
+                     if counts[i] > 0), default=1.0)
+    ax.set_ylim(0, label_top * 1.08)
     for i, (cx, m) in enumerate(zip(centers, means)):
         if counts[i] > 0:
             ax.text(cx, m + stds[i] + 0.55, f"n={counts[i]}",
-                    ha="center", fontsize=16, color="black")
+                    ha="center", va="bottom", fontsize=16, color="black")
     ax.set_xlabel("Manual Angle Range (degrees)")
     ax.set_ylabel("Mean Absolute Error (degrees)")
-    ax.set_title("(d) Error by Angle Range")
+    ax.set_title("Error by Angle Range")
     xt = [f"{int(bins[i])}–{int(bins[i+1])}" for i in range(len(bins) - 1)]
     ax.set_xticks(centers)
     ax.set_xticklabels(xt, rotation=30, ha="right", fontsize=16)

@@ -2,4 +2,4 @@
 
 export PYTHONPATH=$PYTHONPATH:$(pwd)
 echo "running latent shape semantics analysis"
-python latent_shape_explorer.py runs/profile_vae_latent5
+python latent_shape_explorer.py runs_new/profile_vae_latent5

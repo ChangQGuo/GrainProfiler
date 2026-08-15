@@ -167,6 +167,21 @@ def main():
     print(f"Test split  : {n_test} samples  (seed 42, 10%)")
     print(f"Device      : {device}")
 
+    # ---- Sanity check: profile file should match the training run ----
+    args_json = run_dir / "args.json"
+    if args_json.is_file():
+        import json
+        with open(args_json, "r", encoding="utf-8") as f:
+            train_meta = json.load(f)
+        expected = (train_meta.get("train_samples", 0)
+                    + train_meta.get("val_samples", 0)
+                    + train_meta.get("test_samples", 0))
+        if expected and full_ds.num_samples != expected:
+            print(f"WARNING: profile file has {full_ds.num_samples} samples but the "
+                  f"training run used {expected}. The test split below is therefore "
+                  f"NOT the exact original one — use the same rep_width_profiles.txt "
+                  f"(same row order) as training for exact reproduction.")
+
     # ---- Per-sample encode → decode → RMSE / IoU ----
     rows = []
     rmse_vals = []
