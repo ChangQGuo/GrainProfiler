@@ -214,6 +214,7 @@ seed_project_v1.0/
 │   ├── latent_perturbation_grid.py # perturbation grid
 │   ├── reconstruct_samples.py    # representative-sample reconstruction
 │   ├── reconstruct_test_rmse.py  # per-test-sample RMSE boxplot + table
+│   ├── plot_rmse_iou_boxplot.py  # RMSE/IoU boxplots (local redraw, no PyTorch)
 │   ├── latent_load_curves.ipynb  # loading-curve analysis
 │   ├── latent_load_curves.png    # loading-curve plot
 │   ├── config.yaml               # training config

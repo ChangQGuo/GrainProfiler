@@ -55,7 +55,7 @@ def compute_iou(profile_a, profile_b):
     return float(intersection / union) if union > 0 else 0.0
 
 
-def plot_rmse_boxplot(rmse_vals, out_path, test_labels):
+def plot_rmse_boxplot(rmse_vals, out_path):
     """Vertical boxplot of per-sample RMSE; outliers drawn in red."""
     if not _HAS_MPL:
         return
@@ -99,13 +99,6 @@ def plot_rmse_boxplot(rmse_vals, out_path, test_labels):
             transform=ax.transAxes, ha="left", va="top", fontsize=14,
             fontfamily=FONT,
             bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.85))
-
-    # Show the worst few samples on the figure
-    worst_idx = np.argsort(rmse)[-3:][::-1]
-    worst_txt = "worst: " + ", ".join(
-        f"{test_labels[i]} ({rmse[i]:.3f})" for i in worst_idx)
-    ax.text(0.5, 0.02, worst_txt, transform=ax.transAxes, ha="center",
-            va="bottom", fontsize=12, fontfamily=FONT, color="#555555")
 
     plt.tight_layout()
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
@@ -230,7 +223,7 @@ def main():
         writer.writerows(rows)
     print(f"\nPer-sample table → {csv_path}")
 
-    plot_rmse_boxplot(rmse_vals, out_dir / "test_rmse_boxplot.png", test_labels)
+    plot_rmse_boxplot(rmse_vals, out_dir / "test_rmse_boxplot.png")
 
     worst = sorted(zip(test_labels, rmse_vals), key=lambda t: t[1], reverse=True)
     print("\nTop-5 worst reconstructions (largest RMSE):")
