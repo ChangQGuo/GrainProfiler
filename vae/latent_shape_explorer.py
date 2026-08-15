@@ -154,16 +154,7 @@ def plot_shape_grid(profiles, z_min, z_max, n_dims, output_path):
         ax.set_xlim(-5, 105)
         ax.set_ylim(-max(max_ext, 2.0), max(max_ext, 2.0))
 
-        # (subplot title intentionally omitted)
-
-        # Legend
-        from matplotlib.lines import Line2D
-        legend_elements = [
-            plt.Line2D([0], [0], color="#2166AC", linewidth=3, alpha=0.95, label="low"),
-            plt.Line2D([0], [0], color="#D62728", linewidth=3, alpha=0.95, label="high"),
-        ]
-        ax.legend(handles=legend_elements, fontsize=20, frameon=False,
-                  loc="upper right")
+        # (subplot title & legend intentionally omitted)
 
     plt.tight_layout()
     fig.savefig(output_path, dpi=200, bbox_inches="tight")

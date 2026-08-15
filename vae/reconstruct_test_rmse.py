@@ -56,16 +56,25 @@ def compute_iou(profile_a, profile_b):
 
 
 def plot_rmse_boxplot(rmse_vals, out_path):
-    """Vertical boxplot of per-sample RMSE; outliers drawn in red."""
+    """Vertical boxplot of per-sample RMSE; outliers drawn in red.
+
+    Style: Times New Roman, bold, no title / no in-figure annotation
+    (the summary statistics are printed to the console and saved to CSV).
+    """
     if not _HAS_MPL:
         return
     rmse = np.asarray(rmse_vals, dtype=float)
-    q1, med, q3 = np.percentile(rmse, [25, 50, 75])
-    iqr = q3 - q1
-    lo, hi = q1 - 1.5 * iqr, q3 + 1.5 * iqr
-    n_out = int(np.sum((rmse < lo) | (rmse > hi)))
-    mean = float(np.mean(rmse))
-    std = float(np.std(rmse))
+
+    plt.rcParams.update({
+        "font.family": "serif",
+        "font.serif": ["Times New Roman", "DejaVu Serif", "Liberation Serif", "serif"],
+        "font.size": 16,
+        "font.weight": "bold",
+        "axes.labelsize": 19,
+        "axes.labelweight": "bold",
+        "xtick.labelsize": 17,
+        "ytick.labelsize": 16,
+    })
 
     fig, ax = plt.subplots(figsize=(9, 7), facecolor="white")
     bp = ax.boxplot(rmse, patch_artist=True, showmeans=True, widths=0.45,
@@ -80,25 +89,16 @@ def plot_rmse_boxplot(rmse_vals, out_path):
     bp["boxes"][0].set(facecolor="#D8E6F3", edgecolor=RECON_BLUE, linewidth=1.8)
 
     ax.set_xticks([1])
-    ax.set_xticklabels([f"Test set (n = {len(rmse)})"], fontsize=16,
-                       fontweight="bold", fontfamily=FONT)
-    ax.set_ylabel("RMSE (full-width, scaled)", fontsize=17, fontweight="bold",
-                  fontfamily=FONT)
-    ax.set_title("Reconstruction RMSE per Test Sample",
-                 fontsize=20, fontweight="bold", pad=12, fontfamily=FONT)
-    ax.tick_params(axis="y", labelsize=14)
+    ax.set_xticklabels([f"Test set (n = {len(rmse)})"], fontweight="bold")
+    ax.set_ylabel("RMSE (full-width, scaled)")
     ax.grid(axis="y", alpha=0.25)
     ax.spines["top"].set_visible(False)
     ax.spines["right"].set_visible(False)
+    for label in ax.get_xticklabels() + ax.get_yticklabels():
+        label.set_fontweight("bold")
 
-    ax.text(0.02, 0.98,
-            f"mean = {mean:.4f} ± {std:.4f}\n"
-            f"median = {med:.4f}\n"
-            f"IQR = [{q1:.4f}, {q3:.4f}]\n"
-            f"outliers (red) = {n_out} ({100.0 * n_out / len(rmse):.1f}%)",
-            transform=ax.transAxes, ha="left", va="top", fontsize=14,
-            fontfamily=FONT,
-            bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.85))
+    span = float(rmse.max() - rmse.min())
+    ax.set_ylim(rmse.min() - 0.12 * span, rmse.max() + 0.12 * span)
 
     plt.tight_layout()
     fig.savefig(out_path, dpi=200, bbox_inches="tight", facecolor="white")
