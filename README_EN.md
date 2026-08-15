@@ -219,6 +219,7 @@ seed_project_v1.0/
 │   ├── latent_shape_explorer.py  # extreme-decoding visualization
 │   ├── latent_perturbation_grid.py # perturbation grid
 │   ├── reconstruct_samples.py    # representative-sample reconstruction
+│   ├── reconstruct_test_rmse.py  # per-test-sample RMSE boxplot + table
 │   ├── latent_load_curves.ipynb  # loading-curve analysis
 │   ├── latent_load_curves.png    # loading-curve plot
 │   ├── config.yaml               # training config

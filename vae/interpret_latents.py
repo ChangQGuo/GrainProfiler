@@ -157,8 +157,8 @@ def plot_traversal_grid(original_phys, all_ranges, all_curves_phys,
         span = curves.max() - curves.min()
         ax.set_title(f'Latent $z_{{{dim_idx + 1}}}$  (span={span:.1f})',
                      fontsize=13, fontweight='bold')
-        ax.set_xlabel('Kernel length after scaling bottom-top axis to 100', fontsize=9)
-        ax.set_ylabel('Median full-width after scaling main axis to 100', fontsize=9)
+        ax.set_xlabel('Normalized position along morphological axis (%)', fontsize=9)
+        ax.set_ylabel('Full-width (scaled)', fontsize=9)
         ax.grid(alpha=0.2)
         ax.spines['top'].set_visible(False)
         ax.spines['right'].set_visible(False)

@@ -219,6 +219,7 @@ seed_project_v1.0/
 │   ├── latent_shape_explorer.py  # 极值解码可视化
 │   ├── latent_perturbation_grid.py # 扰动网格
 │   ├── reconstruct_samples.py    # 代表性样本重建
+│   ├── reconstruct_test_rmse.py  # 测试集逐样本 RMSE 箱线图 + 表格
 │   ├── latent_load_curves.ipynb  # 载荷曲线分析
 │   ├── latent_load_curves.png    # 载荷曲线图
 │   ├── config.yaml               # 训练配置

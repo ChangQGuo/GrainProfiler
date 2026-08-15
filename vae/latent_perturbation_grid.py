@@ -164,7 +164,7 @@ def draw_perturbation_fan(ax, curves_phys, z_range, dim_idx, original_phys):
     span = curves_phys.max() - curves_phys.min()
     ax.set_title(f"Latent $z_{{{dim_idx + 1}}}$  (span = {span:.1f})",
                  fontsize=20, fontweight="bold", pad=10, fontfamily=FONT)
-    ax.set_xlabel("Position along normalized axis (top → bottom) %",
+    ax.set_xlabel("Normalized position along morphological axis (%)",
                   fontsize=16, fontweight="bold", fontfamily=FONT)
     ax.set_ylabel("Full-width (scaled)",
                   fontsize=16, fontweight="bold", fontfamily=FONT)

@@ -154,10 +154,7 @@ def plot_shape_grid(profiles, z_min, z_max, n_dims, output_path):
         ax.set_xlim(-5, 105)
         ax.set_ylim(-max(max_ext, 2.0), max(max_ext, 2.0))
 
-        ax.set_title(
-            f"{zname}: [{z_min[dim_idx]:.2f} → {z_max[dim_idx]:.2f}]",
-            fontsize=20, fontweight="bold", pad=6,
-        )
+        # (subplot title intentionally omitted)
 
         # Legend
         from matplotlib.lines import Line2D

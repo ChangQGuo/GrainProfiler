@@ -94,7 +94,7 @@ def plot_profile_overlay(original, reconstructed, sample_id, iou, rmse, out_path
     ax.plot(x, reconstructed, color=RED, linewidth=2.2, linestyle="--")
     ax.fill_between(x, original, reconstructed, alpha=0.10, color="#888888")
 
-    ax.set_xlabel("Position along normalized axis (top → bottom) %",
+    ax.set_xlabel("Normalized position along morphological axis (%)",
                   fontsize=16, fontweight="bold", fontfamily=FONT)
     ax.set_ylabel("Full-width (scaled)",
                   fontsize=16, fontweight="bold", fontfamily=FONT)

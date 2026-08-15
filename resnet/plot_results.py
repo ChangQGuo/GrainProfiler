@@ -45,12 +45,12 @@ def smooth_curve(values, weight=0.72):
 plt.rcParams.update({
     "font.family": "serif",
     "font.serif": ["Times New Roman", "DejaVu Serif", "Liberation Serif", "serif"],
-    "font.size": 15,
+    "font.size": 19,
     "font.weight": "bold",
-    "axes.titlesize": 18,  "axes.titleweight": "bold",
-    "axes.labelsize": 16,  "axes.labelweight": "bold",
-    "xtick.labelsize": 14, "ytick.labelsize": 14,
-    "legend.fontsize": 13,
+    "axes.titlesize": 24,  "axes.titleweight": "bold",
+    "axes.labelsize": 21,  "axes.labelweight": "bold",
+    "xtick.labelsize": 18, "ytick.labelsize": 18,
+    "legend.fontsize": 17,
 })
 
 # ── Colours ──
@@ -59,10 +59,13 @@ BLUE_LIGHT   = "#7BAFD4"
 BLUE_PALE    = "#B8D4EC"
 CORAL        = "#E87D4F"
 RED_ACCENT   = "#E03030"
-RED_BRIGHT   = "#FF3333"
+RED_BRIGHT   = "#C0392B"
 GREEN_MANUAL = "#3CB371"
 RED_PRED     = "#E05555"
 GREY_GRID    = "#D0D0D0"
+ORANGE_MARK  = "#E67E22"
+PURPLE_MARK  = "#7D3C98"
+BLUE_MARK    = "#1F618D"
 
 # ════════════════════════════════════════════════════════════
 # Helpers
@@ -90,8 +93,8 @@ def _load_csv(path: Path) -> dict[str, list[float]]:
 def _curve_pair(ax, epochs, train_vals, val_vals, title, c1, c2):
     ax.plot(epochs, train_vals, color=c1, alpha=0.18, linewidth=0.8)
     ax.plot(epochs, val_vals,   color=c2, alpha=0.18, linewidth=0.8)
-    ax.plot(epochs, smooth_curve(train_vals), label="Train", color=c1, linewidth=2.2)
-    ax.plot(epochs, smooth_curve(val_vals),   label="Val",   color=c2, linewidth=2.2)
+    ax.plot(epochs, smooth_curve(train_vals), label="Train", color=c1, linewidth=2.4)
+    ax.plot(epochs, smooth_curve(val_vals),   label="Val",   color=c2, linewidth=2.4)
     ax.set_title(title)
     ax.legend(loc="best", framealpha=0.85)
     ax.grid(True, alpha=0.25, linewidth=0.6, color=GREY_GRID)
@@ -123,7 +126,7 @@ def _draw_arrow_inset(ax, manual_cos, manual_sin, pred_cos, pred_sin, error_deg,
     _arrow((manual_cos, manual_sin), GREEN_MANUAL)
     _arrow((pred_cos, pred_sin), RED_PRED)
 
-    fs = 9 if large else 7
+    fs = 11 if large else 9
     inset.text(0.04, 0.94, "Manual", transform=inset.transAxes,
                color=GREEN_MANUAL, fontsize=fs, va="top", fontweight="bold")
     inset.text(0.04, 0.82, "Pred", transform=inset.transAxes,
@@ -141,7 +144,7 @@ def plot_results(results_csv: Path, out_path: Path):
         print("  WARNING: cannot read results.csv"); return
 
     epochs = data["epoch"]
-    fig, axes = plt.subplots(2, 2, figsize=(12.5, 9))
+    fig, axes = plt.subplots(2, 2, figsize=(13.5, 10))
 
     _curve_pair(axes[0, 0], epochs, data["train_loss"], data["val_loss"],
                 "Loss", BLUE_PRIMARY, CORAL)
@@ -154,11 +157,11 @@ def plot_results(results_csv: Path, out_path: Path):
         vals = np.asarray(data["val_mae_deg"], dtype=float)
         bi = int(np.argmin(vals))
         best_val = vals[bi]
-        axes[0, 1].axvline(epochs[bi], color=CORAL, linestyle=":", linewidth=1.6)
+        axes[0, 1].axvline(epochs[bi], color=CORAL, linestyle=":", linewidth=1.8)
         y_range = max(vals.max() - vals.min(), 0.1)
         y_text = best_val - y_range * 0.08
         axes[0, 1].text(epochs[bi] + 1, y_text,
-                        f"Best {best_val:.2f} deg", fontsize=8,
+                        f"Best {best_val:.2f} deg", fontsize=12,
                         color=RED_ACCENT, fontweight="bold")
 
     _curve_pair(axes[1, 0], epochs, data["train_mean_cosine"],
@@ -166,7 +169,7 @@ def plot_results(results_csv: Path, out_path: Path):
     axes[1, 0].set_ylim(0.65, 1.02)
     axes[1, 0].set_ylabel("Cosine Similarity")
 
-    axes[1, 1].plot(epochs, data["lr"], color=BLUE_PRIMARY, linewidth=2.0)
+    axes[1, 1].plot(epochs, data["lr"], color=BLUE_PRIMARY, linewidth=2.2)
     axes[1, 1].set_title("Learning Rate")
     axes[1, 1].set_ylabel("LR")
     axes[1, 1].grid(True, alpha=0.25, linewidth=0.6, color=GREY_GRID)
@@ -175,7 +178,7 @@ def plot_results(results_csv: Path, out_path: Path):
         ax.set_xlabel("Epoch")
 
     fig.tight_layout()
-    fig.savefig(out_path, dpi=180, bbox_inches="tight")
+    fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  results.png → {out_path}")
 
@@ -200,54 +203,69 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
     p50, p90, p95 = np.percentile(abs_errs, [50, 90, 95])
     p99 = float(np.percentile(abs_errs, 99))
 
-    fig, axes = plt.subplots(2, 2, figsize=(20.5, 15.5))
+    fig, axes = plt.subplots(2, 2, figsize=(22, 16.5))
 
     # (a) Histogram
     ax = axes[0, 0]
-    ax.hist(abs_errs, bins=45, color=BLUE_LIGHT, edgecolor="white",
-            alpha=0.85, linewidth=0.4)
-    for val, label, ls in [(mean_err, f"Mean = {mean_err:.2f}°", "-"),
-                            (p50, f"P50 = {p50:.2f}°", "--"),
-                            (p90, f"P90 = {p90:.2f}°", "-."),
-                            (p95, f"P95 = {p95:.2f}°", ":")]:
-        ax.axvline(val, color=RED_BRIGHT, linestyle=ls, linewidth=2.8, label=label)
-    ax.set_xlabel("Absolute Error (degrees)", fontsize=18, fontweight="bold")
-    ax.set_ylabel("Count", fontsize=18, fontweight="bold")
-    ax.set_title("Angle Error Distribution", fontsize=22, fontweight="bold")
-    ax.legend(loc="upper right", framealpha=0.9, fontsize=14, prop={"weight": "bold"})
-    ax.tick_params(axis='both', labelsize=14)
+    ax.hist(abs_errs, bins=45, color=BLUE_PRIMARY, edgecolor="white",
+            alpha=0.85, linewidth=0.5)
+    for val, label, ls, c in [
+            (mean_err, f"Mean = {mean_err:.2f}°", "-",  RED_BRIGHT),
+            (p50,      f"P50  = {p50:.2f}°",     "--", ORANGE_MARK),
+            (p90,      f"P90  = {p90:.2f}°",     "-.", PURPLE_MARK),
+            (p95,      f"P95  = {p95:.2f}°",     ":",  BLUE_MARK)]:
+        ax.axvline(val, color=c, linestyle=ls, linewidth=2.8, label=label)
+    ax.set_xlabel("Absolute Error (degrees)")
+    ax.set_ylabel("Count")
+    ax.set_title("(a) Angle Error Distribution")
+    ax.legend(loc="upper right", framealpha=0.92)
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
+
+    # Stats box in top-left corner
+    frac_lt5  = 100.0 * np.mean(abs_errs < 5.0)
+    frac_lt10 = 100.0 * np.mean(abs_errs < 10.0)
+    ax.text(0.02, 0.97,
+            f"n = {len(abs_errs)}\n{frac_lt5:.1f}%  < 5°\n{frac_lt10:.1f}% < 10°",
+            transform=ax.transAxes, ha="left", va="top", fontsize=17,
+            bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.85))
 
     # (b) Scatter — Manual vs Predicted
     ax = axes[0, 1]
-    ax.scatter(manual_degs, pred_degs, c=BLUE_LIGHT, s=32, alpha=0.55, edgecolors="none")
-    ax.plot([0, 360], [0, 360], color=RED_BRIGHT, linewidth=2.5)
-    ax.plot([0, 360], [5, 365], color=RED_BRIGHT, linewidth=0.9, linestyle="--", alpha=0.40)
-    ax.plot([5, 365], [0, 360], color=RED_BRIGHT, linewidth=0.9, linestyle="--", alpha=0.40)
+    ax.scatter(manual_degs, pred_degs, c=BLUE_PRIMARY, s=42, alpha=0.45,
+               edgecolors="none")
+    ax.plot([0, 360], [0, 360], color=RED_BRIGHT, linewidth=2.6)
+    ax.plot([0, 360], [5, 365], color=RED_BRIGHT, linewidth=1.0, linestyle="--", alpha=0.45)
+    ax.plot([5, 365], [0, 360], color=RED_BRIGHT, linewidth=1.0, linestyle="--", alpha=0.45)
     ax.set_xlim(0, 360); ax.set_ylim(0, 360)
-    ax.set_xlabel("Manual Angle (degrees)", fontsize=18, fontweight="bold")
-    ax.set_ylabel("Predicted Angle (degrees)", fontsize=18, fontweight="bold")
-    ax.set_title(f"Manual vs Predicted  (MAE = {mean_err:.2f}°)", fontsize=22, fontweight="bold")
-    ax.tick_params(axis='both', labelsize=14)
+    ax.set_xlabel("Manual Angle (degrees)")
+    ax.set_ylabel("Predicted Angle (degrees)")
+    ax.set_title("(b) Manual vs Predicted")
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
     ax.set_aspect("equal")
+
+    # Stats annotation
+    r_pearson = float(np.corrcoef(manual_degs, pred_degs)[0, 1])
+    ax.text(0.03, 0.94,
+            f"MAE = {mean_err:.2f}°\nPearson r = {r_pearson:.4f}\nn = {len(abs_errs)}",
+            transform=ax.transAxes, ha="left", va="top", fontsize=17,
+            bbox=dict(boxstyle="round,pad=0.4", facecolor="white", alpha=0.85))
 
     # (c) CDF
     ax = axes[1, 0]
     se = np.sort(abs_errs)
     cdf = np.arange(1, len(se) + 1) / len(se)
-    ax.plot(se, cdf, color=BLUE_PRIMARY, linewidth=3.2)
-    ax.fill_between(se, 0, cdf, color=BLUE_PALE, alpha=0.25)
-    for pct, pval in [(50, p50), (90, p90), (95, p95), (99, p99)]:
-        ax.axvline(pval, color=RED_BRIGHT, linestyle="--", linewidth=1.8, alpha=0.70)
-        ax.axhline(pct / 100.0, color=RED_BRIGHT, linestyle="--", linewidth=1.8, alpha=0.70)
-        ax.text(pval + 0.6, pct / 100.0 + 0.014, f"P{pct}={pval:.1f}°",
-                fontsize=14, color=RED_BRIGHT, fontweight="bold")
-    ax.set_xlabel("Absolute Error (degrees)", fontsize=18, fontweight="bold")
-    ax.set_ylabel("Cumulative Fraction", fontsize=18, fontweight="bold")
-    ax.set_title("Cumulative Error Distribution", fontsize=22, fontweight="bold")
-    ax.set_xlim(left=0); ax.set_ylim(0, 1.02)
-    ax.tick_params(axis='both', labelsize=14)
+    ax.plot(se, cdf, color=BLUE_PRIMARY, linewidth=3.4)
+    ax.fill_between(se, 0, cdf, color=BLUE_PALE, alpha=0.30)
+    for pct, pval, c in [(50, p50, ORANGE_MARK), (90, p90, PURPLE_MARK),
+                         (95, p95, RED_BRIGHT), (99, p99, BLUE_MARK)]:
+        ax.axvline(pval, color=c, linestyle="--", linewidth=1.8, alpha=0.75)
+        ax.axhline(pct / 100.0, color=c, linestyle="--", linewidth=1.8, alpha=0.75)
+        ax.text(pval + 0.6, pct / 100.0 + 0.018, f"P{pct}={pval:.1f}°",
+                fontsize=17, color=c, fontweight="bold")
+    ax.set_xlabel("Absolute Error (degrees)")
+    ax.set_ylabel("Cumulative Fraction")
+    ax.set_title("(c) Cumulative Error Distribution")
+    ax.set_xlim(left=0); ax.set_ylim(0, 1.03)
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID)
 
     # (d) Per-angle-bin
@@ -262,25 +280,24 @@ def plot_error_analysis(test_csv: Path, out_path: Path):
         means.append(np.mean(abs_errs[m]) if n > 0 else 0.0)
         stds.append(np.std(abs_errs[m]) if n > 1 else 0.0)
     means = np.array(means); stds = np.array(stds)
-    ax.bar(centers, means, width=25, color=BLUE_LIGHT, alpha=0.78,
-           edgecolor=BLUE_PRIMARY, linewidth=1.0)
+    ax.bar(centers, means, width=24, color=BLUE_PRIMARY, alpha=0.80,
+           edgecolor="#1A4B73", linewidth=1.2)
     ax.errorbar(centers, means, yerr=stds, fmt="none",
-                ecolor=RED_BRIGHT, capsize=6, linewidth=2.5)
+                ecolor=RED_BRIGHT, capsize=7, linewidth=2.5)
     for i, (cx, m) in enumerate(zip(centers, means)):
         if counts[i] > 0:
-            ax.text(cx, m + stds[i] + 0.50, f"n={counts[i]}",
-                    ha="center", fontsize=14, color="black", fontweight="bold")
-    ax.set_xlabel("Manual Angle Range (degrees)", fontsize=18, fontweight="bold")
-    ax.set_ylabel("Mean Absolute Error (degrees)", fontsize=18, fontweight="bold")
-    ax.set_title("Error by Angle Range", fontsize=22, fontweight="bold")
+            ax.text(cx, m + stds[i] + 0.55, f"n={counts[i]}",
+                    ha="center", fontsize=16, color="black")
+    ax.set_xlabel("Manual Angle Range (degrees)")
+    ax.set_ylabel("Mean Absolute Error (degrees)")
+    ax.set_title("(d) Error by Angle Range")
     xt = [f"{int(bins[i])}–{int(bins[i+1])}" for i in range(len(bins) - 1)]
     ax.set_xticks(centers)
-    ax.set_xticklabels(xt, rotation=30, ha="right", fontsize=13, fontweight="bold")
-    ax.tick_params(axis='both', labelsize=14)
+    ax.set_xticklabels(xt, rotation=30, ha="right", fontsize=16)
     ax.grid(True, alpha=0.25, linewidth=0.5, color=GREY_GRID, axis="y")
 
-    fig.tight_layout(pad=4.5)
-    fig.savefig(out_path, dpi=180, bbox_inches="tight")
+    fig.tight_layout(pad=4.0, h_pad=3.4, w_pad=2.4)
+    fig.savefig(out_path, dpi=180, bbox_inches="tight", facecolor="white")
     plt.close(fig)
     print(f"  test_error_analysis.png → {out_path}")
 
@@ -343,7 +360,7 @@ def plot_per_kernel(test_csv: Path, images_dir: Path, out_dir: Path):
         ]
         ax.legend(handles=legend_elements, loc="lower center",
                   bbox_to_anchor=(0.5, -0.06), ncol=2, frameon=True,
-                  fontsize=10, framealpha=0.9)
+                  fontsize=13, framealpha=0.9)
 
         stem = Path(img_name).stem
         out_path = out_dir / f"{stem}_pred.png"
