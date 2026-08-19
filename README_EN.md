@@ -57,7 +57,7 @@
 
 ## 1. Project Overview
 
-KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping system. Given a tray photo (5408×4056), it automatically performs label recognition, weight reading, kernel detection, instance segmentation, directed-axis standardization, morphological measurement, continuous shape representation, and latent-trait encoding — finally outputting **per-kernel** and **per-plant** trait tables ready for GWAS.
+KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping system. Given a raw kernel tray photo (5408×4056), it automatically performs sample-information recognition, weight reading, kernel detection, instance segmentation, kernel direction prediction, morphological measurement, continuous shape representation, and latent-trait encoding — finally outputting **per-kernel** and **per-sample** trait tables ready for downstream GWAS.
 
 **Motivation**: traditional kernel phenotyping relies on manual measurement or semi-automatic image processing, which is low-throughput and only yields "predefined" low-dimensional discrete traits (kernel length, width, area, …). These cannot express continuous structural variation such as outline fullness, position of maximum width, crown expansion, or basal contraction. This project upgrades the methodology from "handcrafted metrics" to "data-driven representation learning", closing the loop from images to high-dimensional shape representations to genetic analysis.
 
@@ -71,8 +71,8 @@ KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping sy
 
 ## 2. Key Features
 
-1. **End-to-end automatic pipeline**: YOLO11 (label + scale screen + kernels) + SAM2 + PaddleOCR + YOLOv8n (seven-segment digits), turning raw images directly into a structured database.
-2. **Morphological orientation standardization**: a custom ResNet regresses the "crown → pedicel" directed axis ((cosθ, sinθ) vector regression), removing orientation noise from randomly placed kernels. Test-set **MAE 3.38°**, 95.4% of samples < 10°.
+1. **End-to-end automatic workflow**: YOLO11 (label + scale screen + kernels) + SAM2 + PaddleOCR + YOLOv8n (seven-segment digits), turning raw images directly into a structured database.
+2. **Kernel direction prediction**: a custom ResNet regresses the "crown → pedicel" directed axis ((cosθ, sinθ) vector regression), removing orientation noise from randomly placed kernels.
 3. **100-dim continuous full-width profile**: the 2D outline is sampled into a 100-dim normalized width distribution along the directed axis, moving from discrete scalars to a continuous shape description.
 4. **Latent morphology discovery**: PCA (first two components explain **90.84%** of variance) + β-VAE (5-dim non-orthogonal latent traits capturing fullness, taper, width redistribution, and other nonlinear features).
 5. **Desktop app KernelMPS**: interactive result inspection, calibration correction, and latent-space exploration with three-view cross-linking.
@@ -346,7 +346,7 @@ raw tray photo (.jpg, 5408×4056)
 [Stage 2: detection]  YOLO11x → kernel boxes + 4-level cascade filter
 [Stage 3: segmentation] SAM2.1 Hiera-L → kernel binary masks + RGB crops (neutral-gray bg)
 [Stage 4: measurements] ResNet → directed main axis + 10+ morphological traits + 100-dim width profile
-[Stage 5: shapes]     per-plant median 100-dim width profile + representative-shape plots
+[Stage 5: shapes]     per-sample median 100-dim width profile + representative-shape plots
 [Stage 6: vae_encode] β-VAE encoding → 5-dim latent traits (latent_traits.csv)
 [Stage 7: assembly]   merge into final_output_individual / plant_median.csv
     │
@@ -552,14 +552,10 @@ The `downstream_analysis_scr/` directory provides 3 downstream analysis scripts 
 
 **Copyright © 2026 ChangQGuo. All rights reserved.**
 
-This is a **closed-source, pre-publication** private project for internal use only:
+This project is **temporarily closed-source and pre-publication**:
 
 - Copying, modifying, redistributing, commercial use, or any other use **without the author's written permission** is prohibited;
 - The associated paper has not been published yet — do not disclose any code, data, models, or results;
-- For usage or collaboration, please contact the author (ChangQGuo).
-
-See the [`LICENSE`](LICENSE) file in the repository root for full terms.
+- For usage or collaboration, please contact the author (ChangQGuo, guocq03@outlook.com).
 
 ---
-
-*KernelMPS v1.0 — private pre-publication release.*

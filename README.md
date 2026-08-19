@@ -9,9 +9,9 @@
 # KernelMPS — 玉米籽粒高通量表型识别系统
 
 > **Maize Kernel Morphology Phenotyping System**
-> 全自动玉米籽粒 2D 形态表型流水线：**托盘照片进 → 8 阶段处理 → GWAS 就绪性状数据出**，并配套一个面向育种家的桌面可视化软件 KernelMPS。
+> 全自动玉米籽粒 2D 形态表型流水线：**原始照片 → 8 阶段自动处理 → 用于下游分析的数据**，配套一个面向用户的桌面可视化软件 KernelMPS。
 >
-> 已处理 **15,287 个果穗样本 / 386,386 粒玉米籽粒**，覆盖 61 份玉米种质（杂交种、自交系、地方品种）。
+> 已处理 **15,287 个玉米穗样本 / 386,386 粒玉米籽粒**，覆盖 61 份玉米种质（杂交种、自交系、地方品种）。
 
 > **🚀 结果快速检索桌面软件**
 > 1. 下载本仓库的 `kernelmps.exe`（Windows 程序）
@@ -37,7 +37,7 @@
     - [6.3 使用桌面软件 KernelMPS](#63-使用桌面软件-kernelmps)
   - [7. 流水线 8 阶段详解](#7-流水线-8-阶段详解)
     - [阶段间数据流（桥梁文件）](#阶段间数据流桥梁文件)
-    - [Stage 2 检测的 4 级级联过滤（确定性规则）](#stage-2-检测的-4-级级联过滤确定性规则)
+    - [Stage 2 检测的 4 级级联过滤](#stage-2-检测的-4-级级联过滤)
     - [Stage 4 有向轴与形态测量](#stage-4-有向轴与形态测量)
   - [8. 模型体系](#8-模型体系)
     - [关键设计决策（WHY）](#关键设计决策why)
@@ -57,11 +57,11 @@
 
 ## 1. 项目简介
 
-KernelMPS 是一个「**拍照即出表型**」的玉米籽粒形态高通量分析系统。输入一张托盘照片（5408×4056），系统自动完成标签识别、重量读数、籽粒检测、实例分割、有向轴标准化、形态测量、连续形状表征与潜性状编码，最终输出**单籽粒级**与**植株级**的性状表，可直接对接 GWAS 分析。
+KernelMPS 是一个「**照片到表型**」的玉米籽粒形态高通量分析系统。输入一张原始籽粒照片（5408×4056），系统自动完成样本信息识别、重量读数、籽粒检测、实例分割、籽粒方向预测、形态测量、连续形状表征与潜在性状编码，最终输出**单籽粒级**与**样本级**的性状表，可直接对接下游 GWAS 分析。
 
 **研究动机**：传统籽粒表型依赖人工测量或半自动图像处理，通量低、只能得到「预先定义」的低维离散指标（粒长、粒宽、面积等），无法表达轮廓饱满度、最大宽位置、冠部扩张、基部收缩等连续结构变异。本项目将方法学从「手工定义指标」升级为「数据驱动的表征学习」，建立从图像到高维形状表征再到遗传分析的闭环。
 
-**技术栈**：YOLO11 / YOLOv8n（检测）、PaddleOCR（标签文本）、SAM2.1 Hiera-L（实例分割）、自建 ResNet（有向轴回归）、β-VAE（无监督潜性状）、PySide6（桌面 GUI）、PyInstaller（打包）、Python 3.10 / PyTorch 2.4+。
+**技术栈**：YOLO11 / YOLOv8n（检测）、PaddleOCR（标签文本）、SAM2.1 Hiera-L（实例分割）、自建 ResNet（有向轴回归）、β-VAE（无监督潜在性状）、PySide6（桌面 GUI）、PyInstaller（打包）、Python 3.10 / PyTorch 2.4+。
 
 **全流程总览**：
 
@@ -71,8 +71,8 @@ KernelMPS 是一个「**拍照即出表型**」的玉米籽粒形态高通量分
 
 ## 2. 核心特性
 
-1. **端到端自动流水线**：YOLO11（标签+秤屏+籽粒）+ SAM2 + PaddleOCR + YOLOv8n（数码管），原始图像直出结构化数据库。
-2. **形态方向标准化**：自建 ResNet 回归「冠部 → 花梗」有向轴（(cosθ, sinθ) 向量回归），消除籽粒随机摆放的方向噪声。测试集 **MAE 3.38°**，95.4% 样本 < 10°。
+1. **端到端自动工作流**：YOLO11（标签+秤屏+籽粒）+ SAM2 + PaddleOCR + YOLOv8n（数码管），原始图像直出结构化数据库。
+2. **籽粒方向预测**：搭建 ResNet 回归模型预测「冠部 → 花梗」方向，有向轴（(cosθ, sinθ) 向量回归），消除籽粒随机摆放的方向噪声。
 3. **100 维连续全宽轮廓**：把 2D 轮廓沿有向主轴等距采样成 100 维标准宽度分布，从离散标量走向连续形状描述。
 4. **潜形态发现**：PCA（前两主成分解释 **90.84%** 方差）+ β-VAE（5 维非正交潜特征，捕获饱满度、锥度、宽度再分配等非线性特征）。
 5. **配套桌面软件 KernelMPS**：交互式结果检查、异常校准、潜空间探索，三视图双向联动。
@@ -97,16 +97,16 @@ KernelMPS 是一个「**拍照即出表型**」的玉米籽粒形态高通量分
 seed_project_v1.0/
 ├── README.md                     # 中文说明（本文件）
 ├── README_EN.md                  # 英文说明
-├── LICENSE                       # 专有许可（闭源 · 保留所有权利）
-├── .gitignore                    # git 忽略规则（数据 / 缓存 / 超大文件）
-├── .gitattributes                # Git LFS 追踪规则（kernelmps.exe）
+├── LICENSE                       # 专有许可（暂时闭源 · 保留所有权利）
+├── .gitignore                    
+├── .gitattributes                
 ├── kernelmps.exe                 # Windows 桌面软件（Git LFS 存储，双击即用）
 ├── kernelmps.spec                # PyInstaller 打包脚本（生成 kernelmps.exe）
 ├── yolo_environment.yml          # conda 环境：YOLO 检测 / 数码管
 ├── SAM2_environment.yml          # conda 环境：SAM2 分割 / 测量
 ├── paddle_environment.yml        # conda 环境：PaddleOCR 标签文本
 │
-├── pipeline/                     # 8 阶段流水线核心
+├── pipeline/                     # 8 阶段workflow
 │   ├── main.py                   # 编排器（pre_ocr→ocr→detection→segmentation→measurements→shapes→vae_encode→assembly）
 │   ├── config.yaml               # 全局配置（模型路径 / 阈值 / 标定 / 输出）
 │   ├── env.local.yaml.example    # 本机覆盖配置模板（复制为 env.local.yaml）
@@ -122,8 +122,8 @@ seed_project_v1.0/
 │   │   └── sam_segment.py        # SAM2 掩码 + RGB 子图（中性灰底）
 │   ├── measurements/             # Stage 4：有向轴 + 形态测量
 │   │   ├── kernel_metrics.py     # 门面：编排 + ResNet 轴预测 + 记录组装 + run()
-│   │   ├── geometry.py           # 纯几何原语（重采样 / 交点 / 宽度 / 面积 / 圆形度）
-│   │   ├── axis.py               # 轴候选生成 / 多线索打分 / 择优 / 精修
+│   │   ├── geometry.py           # 几何（重采样 / 交点 / 宽度 / 面积 / 圆形度）
+│   │   ├── axis.py               # 轴候选生成 / 多线索打分 / 择优 / 微调
 │   │   └── qc.py                 # 测量 QC 渲染
 │   ├── processing/               # Stage 5：代表性形状
 │   │   ├── representative_shape.py # 植株级中位数轮廓 + 100 维宽度 profile
@@ -131,13 +131,13 @@ seed_project_v1.0/
 │   ├── vae/                      # Stage 6：VAE 潜性状编码
 │   │   ├── vae_encode.py         # 100 维轮廓 → 5 维潜变量
 │   │   ├── model.py              # VAE Encoder（编码阶段）
-│   │   └── vae_checkpoint.pt     # 已训练 VAE 权重（随仓库分发，极小）
+│   │   └── vae_checkpoint.pt     # 已训练 VAE 权重
 │   ├── output/                   # Stage 7：最终 CSV 组装
 │   │   └── assembler.py          # final_output_individual / plant_median
 │   └── utils/                    # 共享工具
 │   │   ├── config.py             # 共享配置加载（env.local.yaml 覆盖）
-│   │   ├── kernel_id.py          # 籽粒身份键解析（唯一事实源）
-│   │   ├── bbox.py               # YOLO bbox JSON 解析（唯一事实源）
+│   │   ├── kernel_id.py          # 籽粒身份信息解析
+│   │   ├── bbox.py               # YOLO bbox JSON 解析
 │   │   ├── calibration.py        # 托盘标定（mm/px）
 │   │   ├── device.py             # GPU 设备选择
 │   │   └── visualization.py      # 绘图工具
@@ -198,7 +198,7 @@ seed_project_v1.0/
 │   ├── train_resnet_angle.py     # 训练（方向余弦损失）
 │   ├── predict_resnet_angle.py   # 推理
 │   ├── test_resnet_angle.py      # 评估
-│   ├── plot_results.py           # 独立绘图（无需 PyTorch）
+│   ├── plot_results.py          
 │   ├── config.yaml               # 训练配置
 │   ├── run_train.sh              # 训练启动脚本
 │   ├── run_test.sh               # 测试启动脚本
@@ -214,7 +214,7 @@ seed_project_v1.0/
 │   ├── latent_perturbation_grid.py # 扰动网格
 │   ├── reconstruct_samples.py    # 代表性样本重建
 │   ├── reconstruct_test_rmse.py  # 测试集逐样本 RMSE 箱线图 + 表格
-│   ├── plot_rmse_iou_boxplot.py  # RMSE/IoU 箱线图（本地重绘，无需 PyTorch）
+│   ├── plot_rmse_iou_boxplot.py  # RMSE/IoU 箱线图
 │   ├── latent_load_curves.ipynb  # 载荷曲线分析
 │   ├── latent_load_curves.png    # 载荷曲线图
 │   ├── config.yaml               # 训练配置
@@ -345,7 +345,7 @@ pyinstaller kernelmps.spec   # 产物在 dist/kernelmps.exe
 [Stage 2: detection]  YOLO11x → 籽粒边界框 + 4 级级联过滤
 [Stage 3: segmentation] SAM2.1 Hiera-L → 籽粒二值掩码 + RGB 子图（中性灰底）
 [Stage 4: measurements] ResNet → 有向主轴 + 10+ 形态指标 + 100 维宽度轮廓
-[Stage 5: shapes]     植株级中位数 100 维宽度轮廓 + 代表性形状图
+[Stage 5: shapes]     样本级中位数 100 维宽度轮廓 + 代表性形状图
 [Stage 6: vae_encode]  β-VAE 编码 → 5 维潜在性状 (latent_traits.csv)
 [Stage 7: assembly]   合并输出 final_output_individual / plant_median.csv
     │
@@ -368,7 +368,7 @@ pyinstaller kernelmps.spec   # 产物在 dist/kernelmps.exe
 | 5→6 | `rep_width_profiles.txt` | 每植株 100 维宽度轮廓 | VAE/PCA |
 | 6→GWAS | `latent_traits.csv` | plant_id + latent_1..5 | GWAS |
 
-### Stage 2 检测的 4 级级联过滤（确定性规则）
+### Stage 2 检测的 4 级级联过滤
 
 1. **托盘约束**：框中心须在托盘内、与托盘重叠 > 55%，边缘框裁剪进托盘 ROI。
 2. **长宽比**：AR < 4.0（过滤细长伪影）。
@@ -541,7 +541,7 @@ SAM2 子图背景已用中性灰 (128,128,128)，黑色籽粒不会消失；如�
 3. **`3.seed_size_r2.ipynb`**：从 `final_output_individual.csv` 解析 `kernel_name` 得到 `test_id` 与重复号 `rep`，以 rep=1（托盘中心位置）为真值、rep 2/3（偏心位置）为预测值，对 6 个性状（粒长、最大宽、面积、周长、偏心率、圆形度）计算 R² 与 RMSE，并绘制带 y=x 参考线的散点图（示例：粒长 R²≈0.97、周长 R²≈0.98、圆形度 R²≈0.83）。
 
 > **注意**：
-> 1. 脚本内保留了作者本机的绝对路径（`C:/Users/HP/...`），使用前请替换为你自己的输入/输出路径。
+> 1. 脚本内保留了作者本机的绝对路径（`C:/Users/...`），使用前请替换为你自己的输入/输出路径。
 > 2. `2.correlation heatmap.R` 的输入**不是** `1.PCA_analyze.R` 的直接输出：它需要一个额外合并步骤，把 PCA 得分（PC1–5）与植株级形态性状（length / max width / area / perimeter / circularity / aspect ratio，例如来自 `final_output_plant_median.csv`）合并成一张含 `sample_id` + 11 列数值的表。
 
 ---
@@ -550,13 +550,12 @@ SAM2 子图背景已用中性灰 (128,128,128)，黑色籽粒不会消失；如�
 
 **Copyright © 2026 ChangQGuo. 保留所有权利（All Rights Reserved）。**
 
-本项目为**闭源、未发表**的私有代码，仅供内部使用：
+本项目为**暂时闭源、未发表**：
 
 - 未经作者书面授权，**禁止**复制、修改、再分发、商用或用于任何其他用途；
 - 相关论文尚未发表，任何代码、数据、模型与结果**不得**公开或泄露；
-- 如需使用或合作，请联系作者（ChangQGuo）。
+- 如需使用或合作，请联系作者（ChangQGuo，邮箱：guocq03@outlook.com）。
 
-完整条款见仓库根目录的 [`LICENSE`](LICENSE) 文件。
 
 ---
 
