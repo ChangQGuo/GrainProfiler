@@ -18,7 +18,7 @@ from PySide6.QtWidgets import (
     QToolTip,
 )
 
-from kernelmps.app.settings import (
+from grainprofiler.app.settings import (
     CONTOUR_HOVER,
     CONTOUR_NORMAL,
     CONTOUR_SELECTED,

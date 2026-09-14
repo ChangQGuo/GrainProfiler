@@ -17,10 +17,10 @@ from PySide6.QtWidgets import (
     QWidget,
 )
 
-from kernelmps.app.data_loader import DataLoader
-from kernelmps.app.settings import WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH
-from kernelmps.widgets.nav_panel import NavPanel
-from kernelmps.widgets.welcome_widget import WelcomeWidget
+from grainprofiler.app.data_loader import DataLoader
+from grainprofiler.app.settings import WINDOW_MIN_HEIGHT, WINDOW_MIN_WIDTH
+from grainprofiler.widgets.nav_panel import NavPanel
+from grainprofiler.widgets.welcome_widget import WelcomeWidget
 
 # ---------------------------------------------------------------------------
 # Theme stylesheets
@@ -161,11 +161,11 @@ _LIGHT_THEME = """
 
 
 class MainWindow(QMainWindow):
-    """kernelmps application window."""
+    """grainprofiler application window."""
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("kernelmps — Maize Kernel Phenotyping Inspector")
+        self.setWindowTitle("GrainProfiler — Maize Kernel Phenotyping Inspector")
         self.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
 
         # Application font — use Times New Roman on Windows, serif on Linux
@@ -174,7 +174,7 @@ class MainWindow(QMainWindow):
         QApplication.instance().setFont(font)
 
         # App icon and global corn cursor
-        from kernelmps.resources.cursors import create_app_icon, create_corn_cursor
+        from grainprofiler.resources.cursors import create_app_icon, create_corn_cursor
         QApplication.instance().setWindowIcon(create_app_icon())
         self._corn_cursor = create_corn_cursor()
         QApplication.setOverrideCursor(self._corn_cursor)
@@ -392,7 +392,7 @@ class MainWindow(QMainWindow):
         )
         self._stack.setCurrentIndex(1)
         # Save last folder + recent list
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         settings.setValue("last_folder", result_dir)
         self._add_recent_folder(result_dir)
 
@@ -426,8 +426,8 @@ class MainWindow(QMainWindow):
 
     def _show_about(self) -> None:
         QMessageBox.about(
-            self, "About kernelmps",
-            "kernelmps v1.0.0\n\n"
+            self, "About GrainProfiler",
+            "GrainProfiler v1.0.0\n\n"
             "Maize Kernel Phenotyping Result Inspector\n\n"
             "Desktop tool for visually inspecting pipeline outputs.\n"
             "No GPU or pipeline dependencies required.",
@@ -438,8 +438,8 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _build_workspace(self) -> None:
-        from kernelmps.widgets.sample_info_panel import SampleInfoPanel
-        from kernelmps.widgets.sample_view import SampleView
+        from grainprofiler.widgets.sample_info_panel import SampleInfoPanel
+        from grainprofiler.widgets.sample_view import SampleView
 
         # Remove old workspace from stack if re-opening
         if self._splitter is not None:
@@ -492,7 +492,7 @@ class MainWindow(QMainWindow):
     def _open_kernel_detail(self, kernel_name: str) -> None:
         if self._data_loader is None:
             return
-        from kernelmps.widgets.kernel_detail_dialog import KernelDetailDialog
+        from grainprofiler.widgets.kernel_detail_dialog import KernelDetailDialog
         dlg = KernelDetailDialog(kernel_name, self._data_loader, self._result_dir, self)
         dlg.exec()
 
@@ -524,7 +524,7 @@ class MainWindow(QMainWindow):
 
         kernel_profiles = dl.get_kernel_width_profiles_for_image(img)
         if kernel_profiles:
-            from kernelmps.widgets.median_chart import MedianChart
+            from grainprofiler.widgets.median_chart import MedianChart
             chart = MedianChart(kernel_profiles, img, self._dark_mode, self._median_splitter)
 
             # Bidirectional sync: median ↔ overlay ↔ table
@@ -542,7 +542,7 @@ class MainWindow(QMainWindow):
 
             # --- Box plot in right panel of top splitter ---
             try:
-                from kernelmps.widgets.similarity_boxplot import SimilarityBoxPlot
+                from grainprofiler.widgets.similarity_boxplot import SimilarityBoxPlot
                 boxplot = SimilarityBoxPlot(kernel_profiles, img, self._dark_mode,
                                             self._top_splitter)
                 boxplot.kernel_hovered.connect(chart.highlight_kernel)
@@ -855,7 +855,7 @@ class MainWindow(QMainWindow):
         if not txt_path.exists():
             QMessageBox.warning(self, "PCA", "rep_width_profiles.txt not found")
             return
-        from kernelmps.widgets.pca_window import PCAPanel
+        from grainprofiler.widgets.pca_window import PCAPanel
         # Remove old PCA panel if exists (cleanup mpl callbacks first)
         if hasattr(self, '_pca_panel') and self._pca_panel is not None:
             old = self._pca_panel
@@ -892,7 +892,7 @@ class MainWindow(QMainWindow):
         if not profile_txt.exists():
             QMessageBox.warning(self, "VAE", "rep_width_profiles.txt not found")
             return
-        from kernelmps.widgets.vae_latent_window import VAELatentWindow
+        from grainprofiler.widgets.vae_latent_window import VAELatentWindow
         if hasattr(self, '_vae_panel') and self._vae_panel is not None:
             old = self._vae_panel
             self._stack.removeWidget(old)
@@ -927,7 +927,7 @@ class MainWindow(QMainWindow):
         if not csv.exists():
             QMessageBox.warning(self, "Analysis", "final_output_plant_median.csv not found")
             return
-        from kernelmps.widgets.sample_analysis_window import SampleAnalysisWindow
+        from grainprofiler.widgets.sample_analysis_window import SampleAnalysisWindow
         if hasattr(self, '_trait_panel') and self._trait_panel is not None:
             old = self._trait_panel
             self._stack.removeWidget(old)
@@ -950,7 +950,7 @@ class MainWindow(QMainWindow):
         self._stack.setCurrentIndex(1)
 
     def _auto_load_last(self) -> None:
-        path = QSettings("kernelmps", "kernelmps").value("last_folder", "")
+        path = QSettings("grainprofiler", "grainprofiler").value("last_folder", "")
         if path:
             from pathlib import Path
             if Path(str(path)).exists():
@@ -965,7 +965,7 @@ class MainWindow(QMainWindow):
     # ------------------------------------------------------------------
 
     def _add_recent_folder(self, path: str) -> None:
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         recent = settings.value("recent_folders", []) or []
         if isinstance(recent, str):
             recent = [recent]
@@ -976,7 +976,7 @@ class MainWindow(QMainWindow):
 
     def _update_recent_menu(self) -> None:
         self._recent_menu.clear()
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         recent = settings.value("recent_folders", []) or []
         if isinstance(recent, str):
             recent = [recent]
@@ -1002,7 +1002,7 @@ class MainWindow(QMainWindow):
                                 f"The folder no longer exists:\n{path}")
             self._add_recent_folder(path)  # will be filtered on next rebuild
             # Force remove dead entry
-            settings = QSettings("kernelmps", "kernelmps")
+            settings = QSettings("grainprofiler", "grainprofiler")
             recent = settings.value("recent_folders", []) or []
             if isinstance(recent, str):
                 recent = [recent]
@@ -1010,14 +1010,14 @@ class MainWindow(QMainWindow):
             settings.setValue("recent_folders", recent)
 
     def _clear_recent_folders(self) -> None:
-        QSettings("kernelmps", "kernelmps").setValue("recent_folders", [])
+        QSettings("grainprofiler", "grainprofiler").setValue("recent_folders", [])
 
     # ------------------------------------------------------------------
     # Window / splitter state persistence
     # ------------------------------------------------------------------
 
     def closeEvent(self, event) -> None:
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         settings.setValue("window_geometry", self.saveGeometry())
         if self._splitter is not None:
             settings.setValue("main_splitter_sizes", self._splitter.sizes())
@@ -1028,7 +1028,7 @@ class MainWindow(QMainWindow):
         super().closeEvent(event)
 
     def _restore_window_state(self) -> None:
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         geo = settings.value("window_geometry")
         if geo is not None:
             self.restoreGeometry(geo)
@@ -1036,7 +1036,7 @@ class MainWindow(QMainWindow):
             self.resize(1400, 800)
 
     def _restore_splitter_sizes(self) -> None:
-        settings = QSettings("kernelmps", "kernelmps")
+        settings = QSettings("grainprofiler", "grainprofiler")
         if self._splitter is not None:
             saved = settings.value("main_splitter_sizes")
             if saved is not None and len(saved) == 3:
@@ -1044,7 +1044,7 @@ class MainWindow(QMainWindow):
 
     def _on_splitter_moved(self, pos: int, index: int) -> None:
         if self._splitter is not None:
-            QSettings("kernelmps", "kernelmps").setValue(
+            QSettings("grainprofiler", "grainprofiler").setValue(
                 "main_splitter_sizes", self._splitter.sizes()
             )
 

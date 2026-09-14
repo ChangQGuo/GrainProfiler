@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap, QPainter, QTransform
 from PySide6.QtCore import Qt
 
 BASE = Path(__file__).resolve().parent.parent.parent
-SVG = BASE / "kernelmps_minifig"
+SVG = BASE / "grainprofiler_minifig"
 OUT = Path(__file__).resolve().parent
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -26,7 +26,7 @@ for svg_path in svgs:
     r.render(p)
     p.end()
     if "corn" in str(svg_path).lower() or "kernel" in str(svg_path).lower():
-        pix.save(str(OUT / "kernelmps.ico"), "ICO")
+        pix.save(str(OUT / "grainprofiler.ico"), "ICO")
         print("  -> icon")
     else:
         # Corn plant

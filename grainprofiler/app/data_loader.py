@@ -9,7 +9,7 @@ from typing import Any
 
 import pandas as pd
 
-from kernelmps.app.models import (
+from grainprofiler.app.models import (
     AxisData,
     ContourData,
     LoadResult,

@@ -7,7 +7,7 @@ from PySide6.QtCore import Qt
 import sys
 
 BASE = Path(__file__).resolve().parent.parent.parent
-SVG_DIR = BASE / "kernelmps_minifig"
+SVG_DIR = BASE / "grainprofiler_minifig"
 OUT_DIR = Path(__file__).resolve().parent
 
 OUT_DIR.mkdir(parents=True, exist_ok=True)
@@ -20,8 +20,8 @@ pix.fill(Qt.transparent)
 p = QPainter(pix)
 r1.render(p)
 p.end()
-pix.save(str(OUT_DIR / "kernelmps.ico"), "ICO")
-print(f"Icon: {OUT_DIR / 'kernelmps.ico'}")
+pix.save(str(OUT_DIR / "grainprofiler.ico"), "ICO")
+print(f"Icon: {OUT_DIR / 'grainprofiler.ico'}")
 
 # --- Corn cursor (flipped left) ---
 r2 = QSvgRenderer(str(SVG_DIR / "玉米.svg"))

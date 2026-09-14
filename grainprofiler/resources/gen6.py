@@ -3,8 +3,8 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtGui import QPixmap, QPainter, QTransform
 from PySide6.QtCore import Qt
 
-svg_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\kernelmps_minifig"
-out_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\kernelmps\resources"
+svg_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\grainprofiler_minifig"
+out_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\grainprofiler\resources"
 os.makedirs(out_dir, exist_ok=True)
 
 files = sorted([f for f in os.listdir(svg_dir) if f.endswith('.svg')])
@@ -22,7 +22,7 @@ for i, f in enumerate(files):
 
     if i == 0:
         # Sweet corn kernel -> app icon
-        out = os.path.join(out_dir, "kernelmps.ico")
+        out = os.path.join(out_dir, "grainprofiler.ico")
         pix.save(out, 'ICO')
     else:
         # Corn plant -> cursor (flipped)

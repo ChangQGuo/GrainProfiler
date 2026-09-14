@@ -4,7 +4,7 @@ from PySide6.QtGui import QPixmap, QPainter, QTransform
 from PySide6.QtCore import Qt
 
 BASE = Path(__file__).resolve().parent.parent.parent
-SVG = BASE / "kernelmps_minifig"
+SVG = BASE / "grainprofiler_minifig"
 OUT = Path(__file__).resolve().parent
 OUT.mkdir(parents=True, exist_ok=True)
 
@@ -12,7 +12,7 @@ OUT.mkdir(parents=True, exist_ok=True)
 r1 = QSvgRenderer(str(SVG / "甜玉米粒.svg"))
 pix = QPixmap(256, 256); pix.fill(Qt.transparent)
 p = QPainter(pix); r1.render(p); p.end()
-pix.save(str(OUT / "kernelmps.ico"), "ICO")
+pix.save(str(OUT / "grainprofiler.ico"), "ICO")
 print("Icon OK")
 
 # Cursor (flipped left)

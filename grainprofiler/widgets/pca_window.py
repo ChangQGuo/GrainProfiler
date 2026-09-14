@@ -13,8 +13,8 @@ from PySide6.QtWidgets import (
     QScrollArea, QSplitter, QTableView, QVBoxLayout, QWidget, QMessageBox,
 )
 
-from kernelmps.models.pandas_model import PandasModel
-from kernelmps.models.sort_filter_proxy import SortFilterProxy
+from grainprofiler.models.pandas_model import PandasModel
+from grainprofiler.models.sort_filter_proxy import SortFilterProxy
 
 
 class PCAPanel(QWidget):

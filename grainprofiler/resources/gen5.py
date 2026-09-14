@@ -5,7 +5,7 @@ from PySide6.QtGui import QPixmap, QPainter
 from PySide6.QtCore import Qt
 print("2 imports ok")
 
-svg_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\kernelmps_minifig"
+svg_dir = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\grainprofiler_minifig"
 files = [f for f in os.listdir(svg_dir) if f.endswith('.svg')]
 print("3 files:", len(files))
 

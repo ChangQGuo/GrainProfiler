@@ -26,14 +26,14 @@ from PySide6.QtWidgets import (
     QVBoxLayout,
 )
 
-from kernelmps.app.data_loader import DataLoader
-from kernelmps.app.settings import (
+from grainprofiler.app.data_loader import DataLoader
+from grainprofiler.app.settings import (
     AXIS_COLOR,
     BOTTOM_COLOR,
     CONTOUR_NORMAL,
     TOP_COLOR,
 )
-from kernelmps.utils.image_conversion import cv2_to_qpixmap, load_image
+from grainprofiler.utils.image_conversion import cv2_to_qpixmap, load_image
 
 
 class KernelDetailDialog(QDialog):

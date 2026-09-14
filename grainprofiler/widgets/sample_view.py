@@ -19,11 +19,11 @@ from PySide6.QtWidgets import (
     QGraphicsView,
 )
 
-from kernelmps.app.data_loader import DataLoader
-from kernelmps.graphics.kernel_contour_item import KernelContourItem
-from kernelmps.utils.coordinate_transform import transform_contour
-from kernelmps.utils.image_conversion import cv2_to_qpixmap, load_image
-from kernelmps.utils.photo_finder import find_photo
+from grainprofiler.app.data_loader import DataLoader
+from grainprofiler.graphics.kernel_contour_item import KernelContourItem
+from grainprofiler.utils.coordinate_transform import transform_contour
+from grainprofiler.utils.image_conversion import cv2_to_qpixmap, load_image
+from grainprofiler.utils.photo_finder import find_photo
 
 
 class CalibrationLine(QGraphicsLineItem):

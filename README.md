@@ -6,25 +6,25 @@
 
 </div>
 
-# KernelMPS — 玉米籽粒高通量表型识别系统
+# GrainProfiler — 玉米籽粒高通量表型识别系统
 
 > **Maize Kernel Morphology Phenotyping System**
-> 全自动玉米籽粒 2D 形态表型流水线：**原始照片 → 8 阶段自动处理 → 用于下游分析的数据**，配套一个面向用户的桌面可视化软件 KernelMPS。
+> 全自动玉米籽粒 2D 形态表型流水线：**原始照片 → 8 阶段自动处理 → 用于下游分析的数据**，配套一个面向用户的桌面可视化软件 GrainProfiler。
 >
 > 已处理 **15,287 个玉米穗样本 / 386,386 粒玉米籽粒**，覆盖 61 份玉米种质（杂交种、自交系、地方品种）。
 
 > **🚀 结果快速检索桌面软件**
-> 1. 下载本仓库的 `kernelmps.exe`（Windows 程序）
+> 1. 下载本仓库的 `grainprofiler.exe`（Windows 程序）
 > 2. 双击运行 —— 无需安装 Python / GPU / conda
 > 3. 打开软件 → 点「打开文件夹」→ 选择流水线结果目录
 >
-> 详见 [§6.3](#63-使用桌面软件-kernelmps)
+> 详见 [§6.3](#63-使用桌面软件-grainprofiler)
 
 ---
 
 ## 目录
 
-- [KernelMPS — 玉米籽粒高通量表型识别系统](#kernelmps--玉米籽粒高通量表型识别系统)
+- [GrainProfiler — 玉米籽粒高通量表型识别系统](#grainprofiler--玉米籽粒高通量表型识别系统)
   - [目录](#目录)
   - [1. 项目简介](#1-项目简介)
   - [2. 核心特性](#2-核心特性)
@@ -34,7 +34,7 @@
   - [6. 快速开始](#6-快速开始)
     - [6.1 配置](#61-配置)
     - [6.2 运行流水线](#62-运行流水线)
-    - [6.3 使用桌面软件 KernelMPS](#63-使用桌面软件-kernelmps)
+    - [6.3 使用桌面软件 GrainProfiler](#63-使用桌面软件-grainprofiler)
   - [7. 流水线 8 阶段详解](#7-流水线-8-阶段详解)
     - [阶段间数据流（桥梁文件）](#阶段间数据流桥梁文件)
     - [Stage 2 检测的 4 级级联过滤](#stage-2-检测的-4-级级联过滤)
@@ -47,7 +47,7 @@
   - [10. 输入输出数据格式](#10-输入输出数据格式)
     - [输入](#输入)
     - [输出（关键文件）](#输出关键文件)
-  - [11. KernelMPS 桌面软件](#11-kernelmps-桌面软件)
+  - [11. GrainProfiler 桌面软件](#11-grainprofiler-桌面软件)
   - [12. 人工标注工具](#12-人工标注工具)
   - [13. 常见问题](#13-常见问题)
   - [14. 下游分析脚本](#14-下游分析脚本)
@@ -57,7 +57,7 @@
 
 ## 1. 项目简介
 
-KernelMPS 是一个「**照片到表型**」的玉米籽粒形态高通量分析系统。输入一张原始籽粒照片（5408×4056），系统自动完成样本信息识别、重量读数、籽粒检测、实例分割、籽粒方向预测、形态测量、连续形状表征与潜在性状编码，最终输出**单籽粒级**与**样本级**的性状表，可直接对接下游 GWAS 分析。
+GrainProfiler 是一个「**照片到表型**」的玉米籽粒形态高通量分析系统。输入一张原始籽粒照片（5408×4056），系统自动完成样本信息识别、重量读数、籽粒检测、实例分割、籽粒方向预测、形态测量、连续形状表征与潜在性状编码，最终输出**单籽粒级**与**样本级**的性状表，可直接对接下游 GWAS 分析。
 
 **研究动机**：传统籽粒表型依赖人工测量或半自动图像处理，通量低、只能得到「预先定义」的低维离散指标（粒长、粒宽、面积等），无法表达轮廓饱满度、最大宽位置、冠部扩张、基部收缩等连续结构变异。本项目将方法学从「手工定义指标」升级为「数据驱动的表征学习」，建立从图像到高维形状表征再到遗传分析的闭环。
 
@@ -65,7 +65,7 @@ KernelMPS 是一个「**照片到表型**」的玉米籽粒形态高通量分析
 
 **全流程总览**：
 
-![KernelMPS 全流程总览图](project_figs/workflow_figure.png)
+![GrainProfiler 全流程总览图](project_figs/workflow_figure.png)
 
 ---
 
@@ -75,7 +75,7 @@ KernelMPS 是一个「**照片到表型**」的玉米籽粒形态高通量分析
 2. **籽粒方向预测**：搭建 ResNet 回归模型预测「冠部 → 花梗」方向，有向轴（(cosθ, sinθ) 向量回归），消除籽粒随机摆放的方向噪声。
 3. **100 维连续全宽轮廓**：把 2D 轮廓沿有向主轴等距采样成 100 维标准宽度分布，从离散标量走向连续形状描述。
 4. **潜形态发现**：PCA（前两主成分解释 **90.84%** 方差）+ β-VAE（5 维非正交潜特征，捕获饱满度、锥度、宽度再分配等非线性特征）。
-5. **配套桌面软件 KernelMPS**：交互式结果检查、异常校准、潜空间探索，三视图双向联动。
+5. **配套桌面软件 GrainProfiler**：交互式结果检查、异常校准、潜空间探索，三视图双向联动。
 
 **关键量化指标**
 
@@ -100,8 +100,8 @@ seed_project_v1.0/
 ├── LICENSE                       # 专有许可（暂时闭源 · 保留所有权利）
 ├── .gitignore                    
 ├── .gitattributes                
-├── kernelmps.exe                 # Windows 桌面软件（Git LFS 存储，双击即用）
-├── kernelmps.spec                # PyInstaller 打包脚本（生成 kernelmps.exe）
+├── grainprofiler.exe                 # Windows 桌面软件（Git LFS 存储，双击即用）
+├── grainprofiler.spec                # PyInstaller 打包脚本（生成 grainprofiler.exe）
 ├── yolo_environment.yml          # conda 环境：YOLO 检测 / 数码管
 ├── SAM2_environment.yml          # conda 环境：SAM2 分割 / 测量
 ├── paddle_environment.yml        # conda 环境：PaddleOCR 标签文本
@@ -142,9 +142,9 @@ seed_project_v1.0/
 │   │   ├── device.py             # GPU 设备选择
 │   │   └── visualization.py      # 绘图工具
 │
-├── kernelmps/                    # 桌面 GUI 源码（Windows 构建源）
+├── grainprofiler/                    # 桌面 GUI 源码（Windows 构建源）
 │   ├── main.py                   # 程序入口
-│   ├── __main__.py               # python -m kernelmps 入口
+│   ├── __main__.py               # python -m grainprofiler 入口
 │   ├── __init__.py               # 包标记
 │   ├── app/                      # 主窗口 + 数据加载
 │   │   ├── __init__.py           # 包标记
@@ -188,7 +188,7 @@ seed_project_v1.0/
 │   ├── profile_vae_latent5.onnx.data   # 解码器权重（外部数据）
 │   ├── vae_col_mean.npy          # 训练集逐位均值（反归一化）
 │   └── vae_col_std.npy           # 训练集逐位标准差（反归一化）
-├── kernelmps_minifig/            # GUI 图标资源
+├── grainprofiler_minifig/            # GUI 图标资源
 │   ├── 图标.png                  # 应用图标
 │   └── 玉米.png                  # 玉米图标
 │
@@ -307,16 +307,16 @@ python main.py config.yaml --stage detection
 python main.py config.yaml --from-stage segmentation
 ```
 
-### 6.3 使用桌面软件 KernelMPS
+### 6.3 使用桌面软件 GrainProfiler
 
 **快速结果检查软件：**
 
-1. 在本仓库根目录找到 `kernelmps.exe`（Windows 程序，约 148 MB）。
-2. 双击 `kernelmps.exe` 直接运行 —— **不需要 Python、GPU 或 conda**。
+1. 在本仓库根目录找到 `grainprofiler.exe`（Windows 程序，约 148 MB）。
+2. 双击 `grainprofiler.exe` 直接运行 —— **不需要 Python、GPU 或 conda**。
 3. 打开软件后，点「打开文件夹」，选择流水线输出的结果目录（即包含 `measurements.csv` 的文件夹）。
 4. 即可浏览样本、查看籽粒轮廓与测量值、筛选、导出 CSV。
 
-使用演示录屏见 [§11](#11-kernelmps-桌面软件)（主面板交互、VAE 潜变量探索）。
+使用演示录屏见 [§11](#11-grainprofiler-桌面软件)（主面板交互、VAE 潜变量探索）。
 
 > 若 Windows 弹出「Windows 已保护你的电脑」，点「更多信息」→「仍要运行」。
 
@@ -325,11 +325,11 @@ python main.py config.yaml --from-stage segmentation
 ```bash
 # 从源码运行（需 PySide6）
 pip install PySide6
-python kernelmps/main.py
+python grainprofiler/main.py
 
 # 重新打包 exe
 pip install pyinstaller
-pyinstaller kernelmps.spec   # 产物在 dist/kernelmps.exe
+pyinstaller grainprofiler.spec   # 产物在 dist/grainprofiler.exe
 ```
 
 ---
@@ -461,9 +461,9 @@ pyinstaller kernelmps.spec   # 产物在 dist/kernelmps.exe
 
 ---
 
-## 11. KernelMPS 桌面软件
+## 11. GrainProfiler 桌面软件
 
-KernelMPS 是 **纯只读数据浏览器**（无需 GPU/conda/pipeline，双击 exe 即用），**仅支持 Windows 10/11**。
+GrainProfiler 是 **纯只读数据浏览器**（无需 GPU/conda/pipeline，双击 exe 即用），**仅支持 Windows 10/11**。
 
 **三栏工作区**：左（样本列表/筛选）→ 中（托盘图 + 轮廓叠加 + 半宽轮廓图）→ 右（元数据 + 测量表）。
 
@@ -481,14 +481,14 @@ KernelMPS 是 **纯只读数据浏览器**（无需 GPU/conda/pipeline，双击 
 
 **软件演示录屏**：
 
-- 主面板交互：![KernelMPS 主面板交互演示](<project_figs/Main Panel Interaction.gif>)
-- VAE 潜变量探索：![KernelMPS VAE 潜变量探索演示](project_figs/VAE_latent_explorer.gif)
+- 主面板交互：![GrainProfiler 主面板交互演示](<project_figs/Main Panel Interaction.gif>)
+- VAE 潜变量探索：![GrainProfiler VAE 潜变量探索演示](project_figs/VAE_latent_explorer.gif)
 
 **交叉双向联动**：Overlay 籽粒轮廓 ↔ Median 宽度线 ↔ 测量表行 三者完全同步（悬停/点击互相高亮）。
 
 **数据加载优化**：Parquet 优先（1-2s vs CSV 10-15s）、轮廓 LRU 懒加载（最近 5 图缓存）。
 
-**打包**：`pyinstaller kernelmps.spec`（已排除 torch/ultralytics/paddle/sklearn 以瘦身）。
+**打包**：`pyinstaller grainprofiler.spec`（已排除 torch/ultralytics/paddle/sklearn 以瘦身）。
 
 ---
 

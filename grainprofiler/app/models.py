@@ -1,4 +1,4 @@
-"""Data models for kernelmps."""
+"""Data models for grainprofiler."""
 
 from __future__ import annotations
 

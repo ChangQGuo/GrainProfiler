@@ -6,25 +6,25 @@
 
 </div>
 
-# KernelMPS — Maize Kernel High-Throughput Morphology Phenotyping System
+# GrainProfiler — Maize Kernel High-Throughput Morphology Phenotyping System
 
 > **Maize Kernel Morphology Phenotyping System**
-> A fully automatic 2D maize-kernel morphology pipeline: **tray photo in → 8-stage processing → GWAS-ready trait data out**, together with a breeder-facing desktop viewer, KernelMPS.
+> A fully automatic 2D maize-kernel morphology pipeline: **tray photo in → 8-stage processing → GWAS-ready trait data out**, together with a breeder-facing desktop viewer, GrainProfiler.
 >
 > Processed **15,287 ear samples / 386,386 maize kernels**, covering 61 maize accessions (hybrids, inbred lines, landraces).
 
 > **🚀 Desktop software for rapid result retrieval**
-> 1. Download `kernelmps.exe` (Windows program) from this repository
+> 1. Download `grainprofiler.exe` (Windows program) from this repository
 > 2. Double-click to run — **no Python / GPU / conda required**
 > 3. Open the app → click "Open Folder" → select a pipeline result directory
 >
-> See [§6.3](#63-use-the-kernelmps-desktop-app)
+> See [§6.3](#63-use-the-grainprofiler-desktop-app)
 
 ---
 
 ## Table of Contents
 
-- [KernelMPS — Maize Kernel High-Throughput Morphology Phenotyping System](#kernelmps--maize-kernel-high-throughput-morphology-phenotyping-system)
+- [GrainProfiler — Maize Kernel High-Throughput Morphology Phenotyping System](#grainprofiler--maize-kernel-high-throughput-morphology-phenotyping-system)
   - [Table of Contents](#table-of-contents)
   - [1. Project Overview](#1-project-overview)
   - [2. Key Features](#2-key-features)
@@ -34,7 +34,7 @@
   - [6. Quick Start](#6-quick-start)
     - [6.1 Configuration](#61-configuration)
     - [6.2 Run the Pipeline](#62-run-the-pipeline)
-    - [6.3 Use the KernelMPS Desktop App](#63-use-the-kernelmps-desktop-app)
+    - [6.3 Use the GrainProfiler Desktop App](#63-use-the-grainprofiler-desktop-app)
   - [7. The 8 Pipeline Stages](#7-the-8-pipeline-stages)
     - [Inter-stage data flow (bridge files)](#inter-stage-data-flow-bridge-files)
     - [Stage 2 — 4-level cascade filter (deterministic rules)](#stage-2--4-level-cascade-filter-deterministic-rules)
@@ -47,7 +47,7 @@
   - [10. Input / Output Data Format](#10-input--output-data-format)
     - [Input](#input)
     - [Output (key files)](#output-key-files)
-  - [11. KernelMPS Desktop App](#11-kernelmps-desktop-app)
+  - [11. GrainProfiler Desktop App](#11-grainprofiler-desktop-app)
   - [12. Manual Annotation Tool](#12-manual-annotation-tool)
   - [13. FAQ](#13-faq)
   - [14. Downstream Analysis Scripts](#14-downstream-analysis-scripts)
@@ -57,7 +57,7 @@
 
 ## 1. Project Overview
 
-KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping system. Given a raw kernel tray photo (5408×4056), it automatically performs sample-information recognition, weight reading, kernel detection, instance segmentation, kernel direction prediction, morphological measurement, continuous shape representation, and latent-trait encoding — finally outputting **per-kernel** and **per-sample** trait tables ready for downstream GWAS.
+GrainProfiler is a "**photo in, traits out**" maize-kernel morphology phenotyping system. Given a raw kernel tray photo (5408×4056), it automatically performs sample-information recognition, weight reading, kernel detection, instance segmentation, kernel direction prediction, morphological measurement, continuous shape representation, and latent-trait encoding — finally outputting **per-kernel** and **per-sample** trait tables ready for downstream GWAS.
 
 **Motivation**: traditional kernel phenotyping relies on manual measurement or semi-automatic image processing, which is low-throughput and only yields "predefined" low-dimensional discrete traits (kernel length, width, area, …). These cannot express continuous structural variation such as outline fullness, position of maximum width, crown expansion, or basal contraction. This project upgrades the methodology from "handcrafted metrics" to "data-driven representation learning", closing the loop from images to high-dimensional shape representations to genetic analysis.
 
@@ -65,7 +65,7 @@ KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping sy
 
 **Overall workflow**:
 
-![KernelMPS overall workflow](project_figs/workflow_figure.png)
+![GrainProfiler overall workflow](project_figs/workflow_figure.png)
 
 ---
 
@@ -75,7 +75,7 @@ KernelMPS is a "**photo in, traits out**" maize-kernel morphology phenotyping sy
 2. **Kernel direction prediction**: a custom ResNet regresses the "crown → pedicel" directed axis ((cosθ, sinθ) vector regression), removing orientation noise from randomly placed kernels.
 3. **100-dim continuous full-width profile**: the 2D outline is sampled into a 100-dim normalized width distribution along the directed axis, moving from discrete scalars to a continuous shape description.
 4. **Latent morphology discovery**: PCA (first two components explain **90.84%** of variance) + β-VAE (5-dim non-orthogonal latent traits capturing fullness, taper, width redistribution, and other nonlinear features).
-5. **Desktop app KernelMPS**: interactive result inspection, calibration correction, and latent-space exploration with three-view cross-linking.
+5. **Desktop app GrainProfiler**: interactive result inspection, calibration correction, and latent-space exploration with three-view cross-linking.
 
 **Key quantitative results**
 
@@ -99,9 +99,9 @@ seed_project_v1.0/
 ├── README_EN.md                  # English README (this file)
 ├── LICENSE                       # proprietary license (closed-source · all rights reserved)
 ├── .gitignore                    # git ignore rules (data / caches / large files)
-├── .gitattributes                # Git LFS tracking rules (kernelmps.exe)
-├── kernelmps.exe                 # Windows desktop app (stored via Git LFS, double-click to run)
-├── kernelmps.spec                # PyInstaller build spec (produces kernelmps.exe)
+├── .gitattributes                # Git LFS tracking rules (grainprofiler.exe)
+├── grainprofiler.exe                 # Windows desktop app (stored via Git LFS, double-click to run)
+├── grainprofiler.spec                # PyInstaller build spec (produces grainprofiler.exe)
 ├── yolo_environment.yml          # conda env: YOLO detection / digits
 ├── SAM2_environment.yml          # conda env: SAM2 segmentation / measurements
 ├── paddle_environment.yml        # conda env: PaddleOCR label text
@@ -142,9 +142,9 @@ seed_project_v1.0/
 │       ├── device.py             # GPU device selection
 │       └── visualization.py      # drawing helpers
 │
-├── kernelmps/                    # desktop GUI source (Windows build source)
+├── grainprofiler/                    # desktop GUI source (Windows build source)
 │   ├── main.py                   # entry point
-│   ├── __main__.py               # python -m kernelmps entry
+│   ├── __main__.py               # python -m grainprofiler entry
 │   ├── __init__.py               # package marker
 │   ├── app/                      # main window + data loading
 │   │   ├── __init__.py           # package marker
@@ -188,7 +188,7 @@ seed_project_v1.0/
 │   ├── profile_vae_latent5.onnx.data   # decoder weights (external data)
 │   ├── vae_col_mean.npy          # training per-position mean (denormalization)
 │   └── vae_col_std.npy           # training per-position std (denormalization)
-├── kernelmps_minifig/            # GUI icon resources
+├── grainprofiler_minifig/            # GUI icon resources
 │   ├── 图标.png                  # app icon
 │   └── 玉米.png                  # maize icon
 │
@@ -252,7 +252,7 @@ The pipeline uses **3 isolated conda environments**, because YOLO (ultralytics),
 
 **Hardware**: NVIDIA GPU (CUDA 12.1, ≥ 12 GB VRAM recommended; SAM2 Hiera-L is large).
 
-> The desktop app `kernelmps.exe` has **no** such requirements — it runs on any Windows 10/11 machine without Python/GPU.
+> The desktop app `grainprofiler.exe` has **no** such requirements — it runs on any Windows 10/11 machine without Python/GPU.
 
 ---
 
@@ -308,16 +308,16 @@ python main.py config.yaml --stage detection
 python main.py config.yaml --from-stage segmentation
 ```
 
-### 6.3 Use the KernelMPS Desktop App
+### 6.3 Use the GrainProfiler Desktop App
 
 **Desktop software for rapid result retrieval:**
 
-1. Find `kernelmps.exe` (Windows program, ~148 MB) in the repository root.
-2. Double-click `kernelmps.exe` to run — **no Python, GPU, or conda required**.
+1. Find `grainprofiler.exe` (Windows program, ~148 MB) in the repository root.
+2. Double-click `grainprofiler.exe` to run — **no Python, GPU, or conda required**.
 3. In the app, click "Open Folder" and select a pipeline result directory (the folder containing `measurements.csv`).
 4. Browse samples, inspect kernel outlines and measurements, filter, and export CSVs.
 
-See [§11](#11-kernelmps-desktop-app) for demo recordings (main-panel interaction, VAE latent explorer).
+See [§11](#11-grainprofiler-desktop-app) for demo recordings (main-panel interaction, VAE latent explorer).
 
 > If Windows shows "Windows protected your PC", click "More info" → "Run anyway".
 
@@ -326,11 +326,11 @@ See [§11](#11-kernelmps-desktop-app) for demo recordings (main-panel interactio
 ```bash
 # run from source (requires PySide6)
 pip install PySide6
-python kernelmps/main.py
+python grainprofiler/main.py
 
 # rebuild the exe
 pip install pyinstaller
-pyinstaller kernelmps.spec   # output at dist/kernelmps.exe
+pyinstaller grainprofiler.spec   # output at dist/grainprofiler.exe
 ```
 
 ---
@@ -462,9 +462,9 @@ downstream: PCA / β-VAE / correlation heatmaps → GWAS
 
 ---
 
-## 11. KernelMPS Desktop App
+## 11. GrainProfiler Desktop App
 
-KernelMPS is a **read-only data browser** (no GPU/conda/pipeline; just double-click the exe), **Windows 10/11 only**.
+GrainProfiler is a **read-only data browser** (no GPU/conda/pipeline; just double-click the exe), **Windows 10/11 only**.
 
 **Three-pane workspace**: left (sample list / filter) → middle (tray photo + contour overlay + half-width profile chart) → right (metadata + measurement table).
 
@@ -482,14 +482,14 @@ KernelMPS is a **read-only data browser** (no GPU/conda/pipeline; just double-cl
 
 **Demo recordings**:
 
-- Main-panel interaction: ![KernelMPS main-panel interaction demo](<project_figs/Main Panel Interaction.gif>)
-- VAE latent explorer: ![KernelMPS VAE latent-explorer demo](project_figs/VAE_latent_explorer.gif)
+- Main-panel interaction: ![GrainProfiler main-panel interaction demo](<project_figs/Main Panel Interaction.gif>)
+- VAE latent explorer: ![GrainProfiler VAE latent-explorer demo](project_figs/VAE_latent_explorer.gif)
 
 **Cross-linking**: overlay kernel outline ↔ median width line ↔ measurement table row are fully synchronized (hover/click highlight each other).
 
 **Data-loading optimizations**: Parquet-first (1-2 s vs CSV 10-15 s), contour LRU lazy loading (last 5 images cached).
 
-**Packaging**: `pyinstaller kernelmps.spec` (excludes torch/ultralytics/paddle/sklearn to slim the exe).
+**Packaging**: `pyinstaller grainprofiler.spec` (excludes torch/ultralytics/paddle/sklearn to slim the exe).
 
 ---
 

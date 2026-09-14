@@ -4,7 +4,7 @@ from PySide6.QtCore import QPointF, QRectF
 from PySide6.QtGui import QBrush, QColor
 from PySide6.QtWidgets import QGraphicsEllipseItem
 
-from kernelmps.app.settings import BOTTOM_COLOR, TOP_COLOR
+from grainprofiler.app.settings import BOTTOM_COLOR, TOP_COLOR
 
 
 def make_endpoint(

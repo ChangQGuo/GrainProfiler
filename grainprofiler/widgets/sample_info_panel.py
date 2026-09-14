@@ -13,9 +13,9 @@ from PySide6.QtWidgets import (
     QVBoxLayout, QWidget,
 )
 
-from kernelmps.app.data_loader import DataLoader
-from kernelmps.models.pandas_model import PandasModel
-from kernelmps.models.sort_filter_proxy import SortFilterProxy
+from grainprofiler.app.data_loader import DataLoader
+from grainprofiler.models.pandas_model import PandasModel
+from grainprofiler.models.sort_filter_proxy import SortFilterProxy
 
 _STYLE_DARK = """
     QWidget { background-color:#111; }

@@ -15,7 +15,7 @@ class WelcomeWidget(QFrame):
         layout = QVBoxLayout(self)
         layout.setAlignment(Qt.AlignCenter)
 
-        title = QLabel("kernelmps")
+        title = QLabel("GrainProfiler")
         title.setObjectName("welcomeTitle")
         title.setAlignment(Qt.AlignCenter)
         title.setFont(QFont("Times New Roman", 38, QFont.Bold))

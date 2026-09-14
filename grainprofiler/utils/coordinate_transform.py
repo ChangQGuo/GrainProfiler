@@ -4,7 +4,7 @@ Replicates the logic from pipeline/measurements/kernel_metrics.py:3768
 (subimage_point_to_full_image) so the GUI has zero pipeline dependencies.
 """
 
-from kernelmps.app.settings import PADDING_PX
+from grainprofiler.app.settings import PADDING_PX
 
 
 def subimage_point_to_full(

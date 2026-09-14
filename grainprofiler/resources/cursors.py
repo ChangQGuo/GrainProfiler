@@ -1,10 +1,10 @@
-"""App icon and corn cursor rendered from kernelmps_minifig PNGs."""
+"""App icon and corn cursor rendered from grainprofiler_minifig PNGs."""
 
 from pathlib import Path
 from PySide6.QtGui import QPixmap, QCursor, QIcon, QTransform
 from PySide6.QtCore import Qt
 
-_ICON_DIR = Path(__file__).resolve().parent.parent.parent / "kernelmps_minifig"
+_ICON_DIR = Path(__file__).resolve().parent.parent.parent / "grainprofiler_minifig"
 _APP_ICON = _ICON_DIR / "图标.png"
 _CURSOR_IMG = _ICON_DIR / "玉米.png"
 

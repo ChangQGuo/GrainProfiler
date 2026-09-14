@@ -1,9 +1,9 @@
 # ============================================================
-# KernelMPS v1.0 — .gitignore
+# GrainProfiler v1.0 — .gitignore
 # ============================================================
 
 # --- Large binaries ---
-# kernelmps.exe (~148 MB) exceeds GitHub's 100 MB per-file limit, so it is
+# grainprofiler.exe (~148 MB) exceeds GitHub's 100 MB per-file limit, so it is
 # tracked via Git LFS instead — see .gitattributes.
 
 # --- Test / input data (raw images are NOT committed) ---

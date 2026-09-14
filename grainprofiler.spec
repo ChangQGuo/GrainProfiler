@@ -1,23 +1,23 @@
 # -*- mode: python ; coding: utf-8 -*-
-# kernelmps.spec — PyInstaller build spec
+# grainprofiler.spec — PyInstaller build spec
 #
 # Build:
-#   pyinstaller kernelmps.spec
+#   pyinstaller grainprofiler.spec
 #
-# Output will be in dist/kernelmps.exe
+# Output will be in dist/grainprofiler.exe
 
 import sys
 from pathlib import Path
 
 _project = Path(r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new")
-_kernelmps = _project / "kernelmps"
+_grainprofiler = _project / "grainprofiler"
 
 a = Analysis(
-    [str(_kernelmps / "main.py")],
+    [str(_grainprofiler / "main.py")],
     pathex=[str(_project)],
     binaries=[],
     datas=[
-        (str(_project / "kernelmps_minifig"), "kernelmps_minifig"),
+        (str(_project / "grainprofiler_minifig"), "grainprofiler_minifig"),
         (str(_project / "onnx_models"), "onnx_models"),
     ],
     hiddenimports=[
@@ -79,7 +79,7 @@ exe = EXE(
     a.zipfiles,
     a.datas,
     [],
-    name="kernelmps",
+    name="grainprofiler",
     debug=False,
     bootloader_ignore_signals=False,
     strip=False,

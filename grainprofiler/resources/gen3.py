@@ -5,8 +5,8 @@ from PySide6.QtSvg import QSvgRenderer
 from PySide6.QtGui import QPixmap, QPainter, QTransform
 from PySide6.QtCore import Qt
 
-SVG_DIR = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\kernelmps_minifig"
-OUT_DIR = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\kernelmps\resources"
+SVG_DIR = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\grainprofiler_minifig"
+OUT_DIR = r"C:\Users\HP\Desktop\Academic Presentation\seed_project\a_aguo_test_new\grainprofiler\resources"
 os.makedirs(OUT_DIR, exist_ok=True)
 
 files = os.listdir(SVG_DIR)
@@ -26,7 +26,7 @@ for f in files:
     p.end()
     print("  rendered")
     # corn plant SVG = cursor, kernel SVG = icon
-    out_path = os.path.join(OUT_DIR, "kernelmps.ico" if len(files) > 1 and f != files[0] else "corn_cursor.png")
+    out_path = os.path.join(OUT_DIR, "grainprofiler.ico" if len(files) > 1 and f != files[0] else "corn_cursor.png")
     if out_path.endswith('.ico'):
         pix.save(out_path, 'ICO')
     else:

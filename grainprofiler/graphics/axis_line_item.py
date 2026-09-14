@@ -4,7 +4,7 @@ from PySide6.QtCore import QLineF, QPointF
 from PySide6.QtGui import QColor, QPen
 from PySide6.QtWidgets import QGraphicsLineItem
 
-from kernelmps.app.settings import AXIS_COLOR, AXIS_WIDTH
+from grainprofiler.app.settings import AXIS_COLOR, AXIS_WIDTH
 
 
 class AxisLineItem(QGraphicsLineItem):
