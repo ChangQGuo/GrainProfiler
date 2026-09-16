@@ -8,35 +8,35 @@
 
 </div>
 
-> 托盘照片输入 → 8 阶段自动处理 → 单粒和植株级表型数据输出。
-> 项目同时提供 Windows 桌面软件，用于查看和检查流水线结果。
+> 照片输入 → pipeline处理 → 单粒和植株级表型数据输出。
+> Windows 可视化桌面软件，用于查看和检查pipeline结果。
 
-项目已处理 15,287 个玉米样本、386,386 粒籽粒，覆盖 61 份玉米种质。本仓库包含完整流水线源码、模型训练工具、桌面查看器和部署文件。
+本项目已处理 15,287 个玉米样本、386,386 粒籽粒，覆盖 61 份玉米种质。本仓库包含完整pipeline源码、模型训练工具、桌面查看器和部署文件。
 
 ![GrainProfiler 全流程图](project_figs/Figures_github-01.png)
 
 ## 先选择使用方式
 
-### 只查看结果：Windows
+### 结果检查：Windows
 
 1. 下载或克隆本仓库。
 2. 双击 `grainprofiler.exe`。
-3. 点击 **Open Folder**，选择包含 `measurements.csv`（或 `measurements.parquet`）和 `metadata.csv` 的流水线结果目录。
+3. 点击 **Open Folder**，选择包含 `measurements.csv`（或 `measurements.parquet`）和 `metadata.csv` 的pipeline结果目录。
 
-桌面软件不需要安装 Python、CUDA、conda 或流水线环境。
+桌面软件不需要 Python、CUDA、conda 环境。
 
-### 处理新的照片：GPU + conda
+### 处理属于你的照片：GPU + conda
 
-使用此方式处理新的托盘照片，或从指定阶段重新运行流水线。
+使用此方式处理新的kernel照片，或从指定阶段重新运行pipeline。
 
-## 流水线环境
+## pipeline环境
 
 - NVIDIA GPU，CUDA 12.1；SAM2 Hiera-L 建议显存不低于 12 GB。
 - Conda 或 Miniconda。
 - Linux、WSL 或能够运行项目 Python 脚本的环境。
-- `.jpg` 托盘照片；推荐参考尺寸为 5408 × 4056。
+- `.jpg` 原始照片(raw images)；推荐参考尺寸为 5408 × 4056 (本项目使用)。
 
-由于 YOLO、SAM2 和 PaddleOCR 的依赖存在冲突，流水线使用三个相互隔离的环境：
+由于 YOLO、SAM2 和 PaddleOCR 的依赖存在冲突，pipeline使用三个相互隔离的环境：
 
 | 环境文件 | 环境名称 | 用途 |
 |---|---|---|
@@ -62,11 +62,11 @@ cd ..
 # 将 sam2.1_hiera_large.pt 下载到 SAM2 checkpoint 目录
 ```
 
-请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet 和 SAM2 权重需要另行提供或训练。
+请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet权重在本研究附属的huggingface账户'https://huggingface.co/datasets/648121844Gg/GrainProfiler_v1.0'下，我们还同时提供了一个包含500张照片小型数据集及其分析结果，SAM2 权重需自行至官网下载。
 
 ## 配置和运行
 
-不要直接修改 `pipeline/config.yaml` 中的本机路径。先复制本机配置模板：
+建议不要直接修改 `pipeline/config.yaml` 中的本机路径。先复制本机配置模板：
 
 ```bash
 cp pipeline/env.local.yaml.example pipeline/env.local.yaml
@@ -140,7 +140,7 @@ python grainprofiler/main.py
 ## 目录结构
 
 ```text
-pipeline/                 8 阶段处理流水线
+pipeline/                  8 阶段处理pipeline
 grainprofiler/             桌面查看器源码
 resnet/                    有向主轴模型和训练工具
 vae/                       β-VAE 训练和解释工具
@@ -162,4 +162,4 @@ project_figs/              流程图和软件演示
 
 ## 许可证
 
-请查看 [LICENSE](LICENSE)。本项目为论文发表前的研究软件，重新分发代码、数据或模型文件前请联系作者。
+请查看 [LICENSE](LICENSE)。本项目为论文发表前的研究软件，重新分发代码、数据或模型文件前请联系作者，本研究论文尚未发布，若使用该代码请余作者联系Cedric Guo 762323483@qq.com。
