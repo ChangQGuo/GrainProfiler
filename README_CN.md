@@ -11,7 +11,7 @@
 > 照片输入 → pipeline处理 → 单粒和植株级表型数据输出。
 > Windows 可视化桌面软件，用于查看和检查pipeline结果。
 
-本项目已处理 15,287 个玉米样本、386,386 粒籽粒，覆盖 61 份玉米种质。本仓库包含完整pipeline源码、模型训练工具、桌面查看器和部署文件。
+本项目公开处理结果包含 15,278 个有效耳穗图像，涉及约 0.38M 粒籽粒（约 38 万粒），覆盖 61 份玉米种质。本仓库包含完整 pipeline 源码、模型训练工具、桌面查看器和部署文件。
 
 ![GrainProfiler 全流程图](project_figs/Figures_github-01.png)
 
@@ -29,20 +29,24 @@
 
 使用此方式处理新的kernel照片，或从指定阶段重新运行pipeline。
 
-## pipeline环境
+## 运行要求和环境
 
-- NVIDIA GPU，CUDA 12.1；SAM2 Hiera-L 建议显存不低于 12 GB。
-- Conda 或 Miniconda。
 - Linux、WSL 或能够运行项目 Python 脚本的环境。
-- `.jpg` 原始照片(raw images)；推荐参考尺寸为 5408 × 4056 (本项目使用)。
+- Python 3.10，以及 Conda 或 Miniconda。
+- NVIDIA GPU，CUDA 12.1；SAM2 Hiera-L 建议显存不低于 12 GB。
+- `.jpg` 原始照片；本项目参考尺寸为 5408 × 4056。
 
 由于 YOLO、SAM2 和 PaddleOCR 的依赖存在冲突，pipeline使用三个相互隔离的环境：
 
-| 环境文件 | 环境名称 | 用途 |
-|---|---|---|
-| `yolo_environment.yml` | `yoloenv` | YOLO11/YOLO11x 检测和 YOLOv8n 数码管识别 |
-| `SAM2_environment.yml` | `SAM2` | SAM2 分割和形态测量 |
-| `paddle_environment.yml` | `paddle` | PaddleOCR 标签识别 |
+| 环境文件 | 环境 | 主要软件 | 用途 |
+|---|---|---|---|
+| `yolo_environment.yml` | `yoloenv` | Python 3.10、PyTorch 2.4.1、Ultralytics | YOLO11/YOLO11x 检测和 YOLOv8n 数码管识别 |
+| `SAM2_environment.yml` | `SAM2` | Python 3.10、PyTorch 2.5.0、SAM2.1 | SAM2 分割和形态测量 |
+| `paddle_environment.yml` | `paddle` | Python 3.10、PaddlePaddle GPU、PaddleOCR | 标签识别 |
+
+这些 `.yml` 文件是分析服务器导出的参考环境，而不是适用于所有机器的
+通用锁定文件。在其他机器上使用时，如 Conda 报告本机路径或软件包变体
+不适用，请根据本机情况调整。
 
 ## 安装
 
@@ -62,7 +66,7 @@ cd ..
 # 将 sam2.1_hiera_large.pt 下载到 SAM2 checkpoint 目录
 ```
 
-请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet权重在本研究附属的huggingface账户'https://huggingface.co/datasets/648121844Gg/GrainProfiler_v1.0'下，我们还同时提供了一个包含500张照片小型数据集及其分析结果，SAM2 权重需自行至官网下载。
+请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet 权重位于本研究附属的 [Hugging Face 发布页](https://huggingface.co/datasets/648121844Gg/GrainProfiler_v1.0)。该页面还提供一个包含 500 张照片及其分析结果的小型数据集，SAM2 权重需自行至官网下载。
 
 ## 配置和运行
 
@@ -133,7 +137,7 @@ python main.py config.yaml --from-stage segmentation
 桌面软件源码位于 `grainprofiler/`。从源码运行：
 
 ```bash
-pip install PySide6
+pip install PySide6 numpy pandas matplotlib opencv-python onnxruntime
 python grainprofiler/main.py
 ```
 
@@ -162,4 +166,4 @@ project_figs/              流程图和软件演示
 
 ## 许可证
 
-请查看 [LICENSE](LICENSE)。本项目为论文发表前的研究软件，重新分发代码、数据或模型文件前请联系作者，本研究论文尚未发布，若使用该代码请余作者联系Cedric Guo 762323483@qq.com。
+请查看 [LICENSE](LICENSE)。本项目在论文发表前暂按保留全部权利的研究软件方式发布，论文发表后计划重新评估并开放许可证。重新分发或使用代码、数据和模型文件前，请联系作者 Cedric Guo：`762323483@qq.com`。

@@ -11,7 +11,7 @@
 > Photo input → pipeline processing → per-kernel and per-plant phenotype data.
 > A Windows visual desktop application is included for viewing and checking pipeline results.
 
-The project has processed 15,287 maize samples and 386,386 kernels across 61 germplasm accessions. This repository contains the complete pipeline source, model-training tools, desktop viewer, and deployment files.
+The public release covers 15,278 valid ear images and approximately 0.38M kernels across 61 germplasm accessions. This repository contains the complete pipeline source, model-training tools, desktop viewer, and deployment files.
 
 ![GrainProfiler workflow](project_figs/Figures_github-01.png)
 
@@ -29,20 +29,24 @@ The desktop application does not require Python, CUDA, or conda environments.
 
 Use this route to process new kernel photos or rerun the pipeline from a selected stage.
 
-## Pipeline environment
+## Runtime requirements and environments
 
-- NVIDIA GPU with CUDA 12.1; at least 12 GB VRAM is recommended for SAM2 Hiera-L.
-- Conda or Miniconda.
 - Linux, WSL, or another environment that can run the supplied Python scripts.
+- Python 3.10 and Conda or Miniconda.
+- NVIDIA GPU with CUDA 12.1; at least 12 GB VRAM is recommended for SAM2 Hiera-L.
 - Raw `.jpg` images; the reference setup uses 5408 × 4056 images.
 
 The pipeline uses three isolated environments because the YOLO, SAM2, and PaddleOCR dependencies conflict:
 
-| Environment file | Environment name | Used for |
-|---|---|---|
-| `yolo_environment.yml` | `yoloenv` | YOLO11/YOLO11x detection and YOLOv8n digit recognition |
-| `SAM2_environment.yml` | `SAM2` | SAM2 segmentation and morphology measurement |
-| `paddle_environment.yml` | `paddle` | PaddleOCR label recognition |
+| Environment file | Environment | Main software | Used for |
+|---|---|---|---|
+| `yolo_environment.yml` | `yoloenv` | Python 3.10, PyTorch 2.4.1, Ultralytics | YOLO11/YOLO11x detection and YOLOv8n digit recognition |
+| `SAM2_environment.yml` | `SAM2` | Python 3.10, PyTorch 2.5.0, SAM2.1 | SAM2 segmentation and morphology measurement |
+| `paddle_environment.yml` | `paddle` | Python 3.10, PaddlePaddle GPU, PaddleOCR | Label recognition |
+
+These `.yml` files are reference exports from the analysis server rather than
+universal lock files. On another machine, adjust machine-specific Conda paths
+or package variants if the exported files are not accepted directly.
 
 ## Installation
 
@@ -133,7 +137,7 @@ python main.py config.yaml --from-stage segmentation
 The desktop source is in `grainprofiler/`. To run it from source:
 
 ```bash
-pip install PySide6
+pip install PySide6 numpy pandas matplotlib opencv-python onnxruntime
 python grainprofiler/main.py
 ```
 
@@ -162,4 +166,8 @@ Training and evaluation scripts are in `resnet/` and `vae/`. Scientific settings
 
 ## License
 
-See [LICENSE](LICENSE). This is pre-publication research software. Please contact Cedric Guo at `762323483@qq.com` before redistributing or using the code, data, or model files.
+See [LICENSE](LICENSE). This repository is temporarily closed-source before
+publication and is currently distributed under all-rights-reserved terms. The
+licensing status is planned to be revisited after publication. Please contact
+Cedric Guo at `762323483@qq.com` before redistributing or using the code, data,
+or model files.
