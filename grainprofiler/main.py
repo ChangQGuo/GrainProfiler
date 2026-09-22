@@ -22,8 +22,8 @@ _ICON_PNG = (
 
 def main() -> None:
     app = QApplication(sys.argv)
-    app.setApplicationName("grainprofiler")
-    app.setOrganizationName("GrainProfiler")
+    app.setApplicationName("MKProfiler")
+    app.setOrganizationName("MKProfiler")
 
     # Splash screen
     splash_pix = QPixmap(str(_ICON_PNG))

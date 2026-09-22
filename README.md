@@ -20,7 +20,7 @@ The public release covers 15,278 valid ear images and approximately 0.38M kernel
 ### Result inspection — Windows
 
 1. Download or clone this repository.
-2. Double-click `grainprofiler.exe`.
+2. Double-click `grainprofiler.exe` to launch MKProfiler.
 3. Click **Open Folder** and select a pipeline result directory containing `measurements.csv` (or `measurements.parquet`) and `metadata.csv`.
 
 The desktop application does not require Python, CUDA, or conda environments.

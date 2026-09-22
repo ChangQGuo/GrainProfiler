@@ -20,7 +20,7 @@
 ### 结果检查：Windows
 
 1. 下载或克隆本仓库。
-2. 双击 `grainprofiler.exe`。
+2. 双击 `grainprofiler.exe` 启动 MKProfiler。
 3. 点击 **Open Folder**，选择包含 `measurements.csv`（或 `measurements.parquet`）和 `metadata.csv` 的pipeline结果目录。
 
 桌面软件不需要 Python、CUDA、conda 环境。

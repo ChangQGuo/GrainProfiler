@@ -165,7 +165,7 @@ class MainWindow(QMainWindow):
 
     def __init__(self) -> None:
         super().__init__()
-        self.setWindowTitle("GrainProfiler — Maize Kernel Phenotyping Inspector")
+        self.setWindowTitle("MKProfiler — Maize Kernel Phenotyping Inspector")
         self.setMinimumSize(WINDOW_MIN_WIDTH, WINDOW_MIN_HEIGHT)
 
         # Application font — use Times New Roman on Windows, serif on Linux
@@ -426,8 +426,8 @@ class MainWindow(QMainWindow):
 
     def _show_about(self) -> None:
         QMessageBox.about(
-            self, "About GrainProfiler",
-            "GrainProfiler v1.0.0\n\n"
+            self, "About MKProfiler",
+            "MKProfiler v1.0.0\n\n"
             "Maize Kernel Phenotyping Result Inspector\n\n"
             "Desktop tool for visually inspecting pipeline outputs.\n"
             "No GPU or pipeline dependencies required.",
@@ -1075,4 +1075,3 @@ class MainWindow(QMainWindow):
                 new_img = ids[idx + 1]
                 self._nav_panel._list.setCurrentRow(idx + 1)
                 self._on_sample_selected(new_img)
-
