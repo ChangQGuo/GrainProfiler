@@ -1,6 +1,6 @@
 <div align="center">
 
-# GrainProfiler
+# **MKProfiler**（Maize-Kernel Profiler）
 
 ### 玉米籽粒高通量二维形态表型系统
 
@@ -13,7 +13,7 @@
 
 本项目公开处理结果包含 15,278 个有效耳穗图像，涉及约 0.38M 粒籽粒（约 38 万粒），覆盖 61 份玉米种质。本仓库包含完整 pipeline 源码、模型训练工具、桌面查看器和部署文件。
 
-![GrainProfiler 全流程图](project_figs/Figures_github-01.png)
+![MKProfiler 全流程图](project_figs/figure_pipeline.png)
 
 ## 先选择使用方式
 
@@ -51,8 +51,8 @@
 ## 安装
 
 ```bash
-git clone https://github.com/ChangQGuo/GrainProfiler.git
-cd GrainProfiler
+git clone https://github.com/ChangQGuo/MKProfiler.git
+cd MKProfiler
 
 conda env create -f yolo_environment.yml   -n yoloenv
 conda env create -f SAM2_environment.yml   -n SAM2
@@ -66,7 +66,7 @@ cd ..
 # 将 sam2.1_hiera_large.pt 下载到 SAM2 checkpoint 目录
 ```
 
-请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet 权重位于本研究附属的 [Hugging Face 发布页](https://huggingface.co/datasets/648121844Gg/GrainProfiler_v1.0)。该页面还提供一个包含 500 张照片及其分析结果的小型数据集，SAM2 权重需自行至官网下载。
+请准备 `pipeline/config.yaml` 中列出的模型权重。仓库已包含 VAE checkpoint 和桌面软件使用的 ONNX decoder；YOLO、ResNet 权重位于本研究附属的 [Hugging Face 发布页](https://huggingface.co/datasets/648121844Gg/MKProfiler_v1.0)。该页面还提供一个包含 500 张照片及其分析结果的小型数据集，SAM2 权重需自行至官网下载。
 
 ## 配置和运行
 
@@ -124,7 +124,7 @@ python main.py config.yaml --from-stage segmentation
 - `axis_results.json`：单粒主轴端点和测量状态。
 - `subimages/`、`masks_binary/`、`contours/`：桌面软件查看所需的中间结果。
 
-## GrainProfiler 桌面软件
+## MKProfiler 桌面软件
 
 `grainprofiler.exe` 是 Windows 10/11 结果查看软件，可以：
 

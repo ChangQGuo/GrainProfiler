@@ -1,6 +1,6 @@
 <div align="center">
 
-# GrainProfiler
+# **MKProfiler** (Maize-Kernel Profiler)
 
 ### High-throughput 2D maize-kernel phenotyping
 
@@ -13,7 +13,7 @@
 
 The public release covers 15,278 valid ear images and approximately 0.38M kernels across 61 germplasm accessions. This repository contains the complete pipeline source, model-training tools, desktop viewer, and deployment files.
 
-![GrainProfiler workflow](project_figs/Figures_github-01.png)
+![MKProfiler workflow](project_figs/figure_pipeline.png)
 
 ## Choose how to use it
 
@@ -51,8 +51,8 @@ or package variants if the exported files are not accepted directly.
 ## Installation
 
 ```bash
-git clone https://github.com/ChangQGuo/GrainProfiler.git
-cd GrainProfiler
+git clone https://github.com/ChangQGuo/MKProfiler.git
+cd MKProfiler
 
 conda env create -f yolo_environment.yml   -n yoloenv
 conda env create -f SAM2_environment.yml   -n SAM2
@@ -66,7 +66,7 @@ cd ..
 # Download sam2.1_hiera_large.pt into the SAM2 checkpoint directory.
 ```
 
-Prepare the model weights listed in `pipeline/config.yaml`. The VAE checkpoint and the ONNX decoder used by the desktop application are included in this repository. YOLO and ResNet weights are available from the associated [Hugging Face release](https://huggingface.co/datasets/648121844Gg/GrainProfiler_v1.0), which also provides a small 500-photo dataset and its analysis results. Download the SAM2 checkpoint from the official source.
+Prepare the model weights listed in `pipeline/config.yaml`. The VAE checkpoint and the ONNX decoder used by the desktop application are included in this repository. YOLO and ResNet weights are available from the associated [Hugging Face release](https://huggingface.co/datasets/648121844Gg/MKProfiler_v1.0), which also provides a small 500-photo dataset and its analysis results. Download the SAM2 checkpoint from the official source.
 
 ## Configure and run
 
@@ -124,7 +124,7 @@ python main.py config.yaml --from-stage segmentation
 - `axis_results.json`: per-kernel axis endpoints and measurement status.
 - `subimages/`, `masks_binary/`, and `contours/`: intermediate results used by the desktop viewer.
 
-## GrainProfiler desktop application
+## MKProfiler desktop application
 
 `grainprofiler.exe` is a Windows 10/11 result viewer. It can:
 
